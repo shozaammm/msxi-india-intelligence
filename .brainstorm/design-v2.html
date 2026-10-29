@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSXI — Mercedes-Benz India Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:          #060608;
+    --surface:     #0C0C10;
+    --card:        #111115;
+    --card-hi:     #16161B;
+    --border:      rgba(255,255,255,0.055);
+    --border-hi:   rgba(255,255,255,0.12);
+    --text-1:      #ECEAE3;
+    --text-2:      #6B6975;
+    --text-3:      #3A3840;
+    --silver:      #C2C0BE;
+    --silver-dim:  #6A6866;
+    --msxi-blue:   #1A4FBB;
+    --pos:         #3ECF8E;
+    --neg:         #F06060;
+    --gold:        #C9A84C;
+    --live:        #3ECF8E;
+    --serif: 'Space Grotesk', -apple-system, sans-serif;
+    --mono: 'Inter', monospace;
+  }
+
+  html, body {
+    width: 100%; height: 100vh;
+    background: var(--bg);
+    color: var(--text-1);
+    font-family: var(--mono);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ───── LAYOUT ───── */
+  .shell {
+    display: grid;
+    grid-template-rows: 44px 1fr;
+    height: 100vh;
+    width: 100%;
+  }
+
+  /* ───── TOP BAR ───── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(6,6,8,0.92);
+    backdrop-filter: blur(12px);
+    gap: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* MSXI Wordmark */
+  .msxi-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .msxi-mark img {
+    height: 20px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+  }
+  .msxi-fallback {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-1);
+  }
+  .msxi-fallback span { color: var(--msxi-blue); }
+
+  .topbar-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border-hi);
+    margin: 0 20px;
+    flex-shrink: 0;
+  }
+
+  .topbar-context {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    flex: 1;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--live);
+  }
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--live);
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+
+  .topbar-time {
+    font-size: 11px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+  }
+
+  .india-badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--silver-dim);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 3px 9px;
+    border-radius: 2px;
+  }
+
+  /* ───── CANVAS ───── */
+  .canvas {
+    display: grid;
+    grid-template-columns: 55% 45%;
+    overflow: hidden;
+  }
+
+  /* ───── LEFT — MARKET PANEL ───── */
+  .market-panel {
+    border-right: 1px solid var(--border);
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle Mercedes star watermark */
+  .star-bg {
+    position: absolute;
+    right: -80px;
+    bottom: -80px;
+    opacity: 0.025;
+    pointer-events: none;
+  }
+
+  .panel-eyebrow {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 4px;
+  }
+
+  .exchange-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  /* Mercedes three-pointed star (small, inline) */
+  .mb-star-sm {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+
+  .exchange-info { display: flex; flex-direction: column; }
+  .exchange-name {
+    font-family: var(--serif);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--silver);
+    letter-spacing: 0.02em;
+  }
+  .exchange-sub {
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+  }
+
+  /* Price hero */
+  .price-hero {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .price-value {
+    font-family: var(--serif);
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .price-currency {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .price-change-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .change-pos {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--pos);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+  .change-neg {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--neg);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+  .change-label {
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Metrics grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: auto;
+  }
+  .metric-cell {
+    background: var(--card);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    transition: background 0.15s;
+  }
+  .metric-cell:hover { background: var(--card-hi); }
+  .metric-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .metric-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .metric-sub {
+    font-size: 10px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .source-stamp {
+    margin-top: 20px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .source-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--live);
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  /* ───── RIGHT COLUMN ───── */
+  .right-col {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+  }
+
+  /* ───── MARKETPLACE PANEL ───── */
+  .marketplace-panel {
+    border-bottom: 1px solid var(--border);
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .panel-title {
+    font-family: var(--serif);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+  .panel-badge {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.25);
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+
+  .market-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    flex: 1;
+  }
+  .mcard {
+    background: var(--card);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: background 0.15s;
+    cursor: default;
+  }
+  .mcard:hover { background: var(--card-hi); }
+  .mcard-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .mcard-value {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .mcard-sub {
+    font-size: 10px;
+    color: var(--text-3);
+  }
+
+  .mp-source {
+    margin-top: 12px;
+    font-size: 9px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .demo-tag {
+    font-size: 8px;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.2);
+    padding: 1px 5px;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ───── NEWS PANEL ───── */
+  .news-panel {
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .news-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .news-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    padding-left: 14px;
+  }
+  .news-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 12px; bottom: 12px;
+    width: 2px;
+    background: transparent;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .news-item:hover::before { background: var(--silver-dim); }
+  .news-item:last-child { border-bottom: none; }
+
+  .news-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .news-source {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--silver-dim);
+  }
+  .news-time {
+    font-size: 9px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .news-sep { font-size: 9px; color: var(--text-3); }
+
+  .news-headline {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    line-height: 1.45;
+    letter-spacing: 0.01em;
+  }
+  .news-item:hover .news-headline { color: var(--text-1); }
+
+  .news-source-stamp {
+    margin-top: 12px;
+    font-size: 9px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  /* ───── COMING SOON brands ───── */
+  .brand-switcher {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .brand-pill {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    cursor: default;
+    transition: all 0.15s;
+  }
+  .brand-pill.active {
+    color: var(--silver);
+    border-color: rgba(194,192,190,0.25);
+    background: rgba(194,192,190,0.06);
+  }
+  .brand-pill.locked {
+    color: var(--text-3);
+    border-color: var(--border);
+    opacity: 0.5;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ═══ TOP BAR ═══ -->
+  <header class="topbar">
+
+    <!-- MSXI Logo — loads from site, fallback to wordmark -->
+    <div class="msxi-mark">
+      <img
+        src="https://www.msxi.com/wp-content/themes/msxi/assets/img/logo.svg"
+        alt="MSXI"
+        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+      />
+      <div class="msxi-fallback" style="display:block;">MSX<span>I</span></div>
+    </div>
+
+    <div class="topbar-divider"></div>
+
+    <span class="topbar-context">Mercedes-Benz India — Live Intelligence</span>
+
+    <div class="topbar-right">
+
+      <!-- Brand switcher -->
+      <div class="brand-switcher">
+        <span class="brand-pill active">Mercedes India</span>
+        <span class="brand-pill locked">BMW India</span>
+        <span class="brand-pill locked">Stellantis</span>
+        <span class="brand-pill locked">Hyundai</span>
+      </div>
+
+      <div class="topbar-divider"></div>
+
+      <span class="india-badge">India Region</span>
+      <div class="live-badge"><div class="live-dot"></div>Live</div>
+      <span class="topbar-time" id="clock">14:32:08 IST</span>
+    </div>
+  </header>
+
+  <!-- ═══ CANVAS ═══ -->
+  <div class="canvas">
+
+    <!-- ──── LEFT — STOCK / MARKET PANEL ──── -->
+    <section class="market-panel">
+
+      <!-- Background watermark star -->
+      <svg class="star-bg" width="480" height="480" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="48" stroke="white" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="38" stroke="white" stroke-width="0.5"/>
+        <!-- Three-pointed star arms -->
+        <path d="M50 4 L53 42 L50 50 L47 42 Z" fill="white"/>
+        <path d="M50 4 L53 42 L50 50 L47 42 Z" fill="white" transform="rotate(120,50,50)"/>
+        <path d="M50 4 L53 42 L50 50 L47 42 Z" fill="white" transform="rotate(240,50,50)"/>
+        <circle cx="50" cy="50" r="5" fill="white"/>
+      </svg>
+
+      <div class="panel-eyebrow">Frankfurt Stock Exchange · MBG.DE</div>
+
+      <div class="exchange-row">
+        <!-- Mercedes Star SVG — inline, always renders -->
+        <svg class="mb-star-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="47" stroke="#C2C0BE" stroke-width="3"/>
+          <circle cx="50" cy="50" r="36" stroke="#C2C0BE" stroke-width="1"/>
+          <path d="M50 8 L53.5 40 L50 50 L46.5 40 Z" fill="#C2C0BE"/>
+          <path d="M50 8 L53.5 40 L50 50 L46.5 40 Z" fill="#C2C0BE" transform="rotate(120,50,50)"/>
+          <path d="M50 8 L53.5 40 L50 50 L46.5 40 Z" fill="#C2C0BE" transform="rotate(240,50,50)"/>
+          <circle cx="50" cy="50" r="6" fill="#C2C0BE"/>
+        </svg>
+        <div class="exchange-info">
+          <span class="exchange-name">Mercedes-Benz Group AG</span>
+          <span class="exchange-sub">XETRA · EUR · Real-Time</span>
+        </div>
+      </div>
+
+      <!-- Price Hero -->
+      <div class="price-hero">
+        <span class="price-currency">€</span>
+        <span class="price-value">58.42</span>
+      </div>
+
+      <div class="price-change-row">
+        <span class="change-pos">↑ +€0.71 &nbsp;(+1.24%)</span>
+        <span class="change-label">Today's Change</span>
+      </div>
+
+      <!-- Metrics Grid -->
+      <div class="metrics-grid">
+        <div class="metric-cell">
+          <span class="metric-label">Market Cap</span>
+          <span class="metric-value">€62.3B</span>
+          <span class="metric-sub">EUR</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-label">Day High</span>
+          <span class="metric-value">€59.20</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-label">Day Low</span>
+          <span class="metric-value">€57.80</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-label">52W High</span>
+          <span class="metric-value">€78.40</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-label">52W Low</span>
+          <span class="metric-value">€48.20</span>
+        </div>
+        <div class="metric-cell">
+          <span class="metric-label">Volume</span>
+          <span class="metric-value">4.2M</span>
+          <span class="metric-sub">Shares</span>
+        </div>
+      </div>
+
+      <div class="source-stamp">
+        <div class="source-dot"></div>
+        Source: Yahoo Finance · MBG.DE · Refreshed every 30s
+      </div>
+    </section>
+
+    <!-- ──── RIGHT COLUMN ──── -->
+    <div class="right-col">
+
+      <!-- ── MARKETPLACE PANEL ── -->
+      <section class="marketplace-panel">
+        <div class="panel-header">
+          <span class="panel-title">Marketplace · India</span>
+          <span class="panel-badge">Demo Data</span>
+        </div>
+
+        <div class="market-cards">
+          <div class="mcard">
+            <span class="mcard-label">Live Listings</span>
+            <span class="mcard-value">1,284</span>
+            <span class="mcard-sub">Active listings · India</span>
+          </div>
+          <div class="mcard">
+            <span class="mcard-label">Avg Listing Price</span>
+            <span class="mcard-value">₹92.4L</span>
+            <span class="mcard-sub">Across all models</span>
+          </div>
+          <div class="mcard">
+            <span class="mcard-label">Days on Market</span>
+            <span class="mcard-value">47d</span>
+            <span class="mcard-sub">Average per listing</span>
+          </div>
+          <div class="mcard">
+            <span class="mcard-label">Top Region</span>
+            <span class="mcard-value">MH · KA</span>
+            <span class="mcard-sub">Maharashtra · Karnataka</span>
+          </div>
+        </div>
+
+        <div class="mp-source">
+          Source: Market Intelligence Composite &nbsp;<span class="demo-tag">Demo Mode</span>
+        </div>
+      </section>
+
+      <!-- ── NEWS / INTELLIGENCE STREAM ── -->
+      <section class="news-panel">
+        <div class="panel-header">
+          <span class="panel-title">Intelligence Stream</span>
+          <div class="live-badge" style="font-size:9px;"><div class="live-dot"></div>Live</div>
+        </div>
+
+        <div class="news-list">
+          <div class="news-item">
+            <div class="news-meta">
+              <span class="news-source">Autocar India</span>
+              <span class="news-sep">·</span>
+              <span class="news-time">2 min ago</span>
+            </div>
+            <span class="news-headline">Mercedes-Benz India reports record Q1 SUV sales, GLC leads segment with 34% market share</span>
+          </div>
+          <div class="news-item">
+            <div class="news-meta">
+              <span class="news-source">ET Auto</span>
+              <span class="news-sep">·</span>
+              <span class="news-time">14 min ago</span>
+            </div>
+            <span class="news-headline">EQS 580 4MATIC prices revised for FY2025 Indian market — ex-showroom Delhi ₹1.55 Cr</span>
+          </div>
+          <div class="news-item">
+            <div class="news-meta">
+              <span class="news-source">Overdrive</span>
+              <span class="news-sep">·</span>
+              <span class="news-time">31 min ago</span>
+            </div>
+            <span class="news-headline">DICV launches new Actros L for Indian long-haul logistics sector at ₹52L</span>
+          </div>
+          <div class="news-item">
+            <div class="news-meta">
+              <span class="news-source">BS Motoring</span>
+              <span class="news-sep">·</span>
+              <span class="news-time">1h ago</span>
+            </div>
+            <span class="news-headline">Mercedes AMG GLC 63 S e Performance India launch confirmed for Q3 2025</span>
+          </div>
+        </div>
+
+        <div class="news-source-stamp">
+          Source: Autocar India · ET Auto · Overdrive · BS Motoring RSS Feeds · Unedited
+        </div>
+      </section>
+
+    </div><!-- end right-col -->
+  </div><!-- end canvas -->
+</div><!-- end shell -->
+
+<script>
+  // Live clock
+  function tick() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    const el = document.getElementById('clock');
+    if (el) el.textContent = `${h}:${m}:${s} IST`;
+  }
+  tick();
+  setInterval(tick, 1000);
+</script>
+
+</body>
+</html>

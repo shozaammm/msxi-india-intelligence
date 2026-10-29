@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSXI Layout Options</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #03030A;
+    color: #E0E0F0;
+    font-family: -apple-system, 'SF Pro Display', 'Inter', sans-serif;
+    padding: 40px 32px;
+    min-height: 100vh;
+  }
+
+  .page-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #5060A0;
+    margin-bottom: 8px;
+  }
+  .page-heading {
+    font-size: 28px;
+    font-weight: 700;
+    color: #E8E8FC;
+    margin-bottom: 6px;
+  }
+  .page-sub {
+    font-size: 14px;
+    color: #4A5070;
+    margin-bottom: 48px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .option {
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    background: #08080F;
+  }
+  .option:hover { border-color: rgba(0,158,224,0.4); transform: translateY(-2px); }
+  .option.selected { border-color: #009EE0; background: #080E18; }
+  .option.recommended { position: relative; }
+  .option.recommended::before {
+    content: 'RECOMMENDED';
+    position: absolute;
+    top: 12px; right: 12px;
+    background: rgba(0,158,224,0.15);
+    color: #009EE0;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,158,224,0.3);
+    z-index: 10;
+  }
+
+  .option-mockup {
+    height: 260px;
+    background: #050510;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option-info {
+    padding: 20px;
+  }
+  .option-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #009EE0;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .option-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #E0E0F0;
+    margin-bottom: 8px;
+  }
+  .option-desc {
+    font-size: 13px;
+    color: #5060A0;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 11px;
+    color: #606080;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  /* =================== OPTION A MOCKUP — Floating Island =================== */
+  .island-bar {
+    position: absolute;
+    top: 14px; left: 50%; transform: translateX(-50%);
+    background: #12122A;
+    border: 1px solid rgba(0,158,224,0.3);
+    border-radius: 50px;
+    padding: 6px 16px;
+    display: flex; align-items: center; gap: 12px;
+    white-space: nowrap;
+    font-size: 9px;
+    box-shadow: 0 0 24px rgba(0,158,224,0.15);
+  }
+  .island-logo { color: #009EE0; font-weight: 800; font-size: 10px; letter-spacing: 0.05em; }
+  .island-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.1); }
+  .island-brand {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(0,158,224,0.12);
+    border: 1px solid rgba(0,158,224,0.25);
+    padding: 3px 8px; border-radius: 20px;
+    font-size: 9px; color: #009EE0; font-weight: 600;
+  }
+  .island-brand-dot { width: 5px; height: 5px; border-radius: 50%; background: #00E676; }
+  .island-pill { color: #303050; font-size: 9px; cursor: pointer; }
+  .island-live {
+    display: flex; align-items: center; gap: 4px;
+    color: #00E676; font-size: 9px; font-weight: 600;
+  }
+  .live-pulse {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #00E676;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .bento-grid {
+    position: absolute;
+    top: 56px; left: 16px; right: 16px; bottom: 16px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+  }
+  .bento-cell {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    display: flex; flex-direction: column;
+    padding: 8px;
+  }
+  .bento-cell.hero { grid-row: span 2; }
+  .bento-cell.wide { grid-column: span 2; }
+  .bc-label { font-size: 7px; color: #30405A; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  .bc-value { font-size: 14px; font-weight: 700; color: #E0E0F0; font-variant-numeric: tabular-nums; }
+  .bc-sub { font-size: 8px; color: #304060; margin-top: 2px; }
+  .bc-change-pos { font-size: 9px; color: #00E676; font-weight: 600; }
+  .bc-change-neg { font-size: 9px; color: #FF3355; font-weight: 600; }
+  .news-row { display: flex; flex-direction: column; gap: 3px; justify-content: space-around; height: 100%; }
+  .news-item-mini { font-size: 7px; color: #404060; border-left: 1px solid rgba(0,158,224,0.3); padding-left: 4px; }
+  .news-item-mini span { color: #6070A0; }
+
+  /* =================== OPTION B MOCKUP — Top Rail =================== */
+  .top-rail {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 36px;
+    background: rgba(8,8,20,0.9);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 12px;
+  }
+  .rail-logo { font-size: 10px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.05em; }
+  .rail-sep { flex: 1; }
+  .rail-brand-tabs { display: flex; gap: 4px; }
+  .rail-tab {
+    font-size: 9px; padding: 3px 10px; border-radius: 4px;
+    font-weight: 600;
+  }
+  .rail-tab.active { background: rgba(0,158,224,0.15); color: #009EE0; border: 1px solid rgba(0,158,224,0.3); }
+  .rail-tab.inactive { color: #303050; border: 1px solid rgba(255,255,255,0.05); }
+  .rail-status { display: flex; align-items: center; gap: 4px; font-size: 9px; color: #00E676; }
+
+  .canvas-b {
+    position: absolute;
+    top: 40px; left: 16px; right: 16px; bottom: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 80px;
+    gap: 6px;
+  }
+  .canvas-cell {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    padding: 8px;
+    display: flex; flex-direction: column;
+  }
+  .canvas-cell.news { grid-column: span 2; flex-direction: row; align-items: center; gap: 8px; }
+  .canvas-cell.news .news-stream {
+    display: flex; gap: 12px; flex: 1; overflow: hidden;
+  }
+  .news-chip { font-size: 7px; color: #404060; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; padding: 4px 6px; white-space: nowrap; }
+  .canvas-label { font-size: 7px; color: #30405A; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  .canvas-value { font-size: 20px; font-weight: 800; color: #E0E0F0; font-variant-numeric: tabular-nums; margin-top: auto; }
+  .canvas-unit { font-size: 8px; color: #304060; }
+  .metrics-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-top: 4px; }
+  .metric-mini-item { font-size: 7px; color: #304060; background: rgba(255,255,255,0.02); border-radius: 3px; padding: 3px 5px; }
+  .metric-mini-val { font-size: 9px; color: #8090B0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* =================== OPTION C MOCKUP — Cinematic 3-Zone =================== */
+  .cinematic-top {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 28px;
+    display: flex; align-items: center; padding: 0 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 8px;
+  }
+  .cin-logo { font-size: 9px; font-weight: 800; color: #FFFFFF; }
+  .cin-tag { font-size: 8px; color: #303050; }
+  .cin-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .cin-badge { font-size: 8px; color: #009EE0; background: rgba(0,158,224,0.1); border: 1px solid rgba(0,158,224,0.2); padding: 2px 7px; border-radius: 3px; }
+  .cin-live { font-size: 8px; color: #00E676; display: flex; align-items: center; gap: 3px; }
+
+  .cinematic-body {
+    position: absolute;
+    top: 32px; left: 0; right: 0; bottom: 0;
+    display: grid;
+    grid-template-columns: 55% 45%;
+  }
+  .cin-left {
+    border-right: 1px solid rgba(255,255,255,0.04);
+    padding: 12px 14px;
+    display: flex; flex-direction: column;
+  }
+  .cin-right-col {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+  }
+  .cin-marketplace {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding: 10px 14px;
+  }
+  .cin-news {
+    padding: 10px 14px;
+    overflow: hidden;
+  }
+  .cin-ticker { font-size: 20px; font-weight: 800; color: #E0E0F0; font-variant-numeric: tabular-nums; }
+  .cin-ticker-sub { font-size: 10px; color: #30405A; margin-top: 2px; }
+  .cin-change-pos { font-size: 12px; font-weight: 700; color: #00E676; margin-top: 8px; }
+  .cin-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-top: 12px; }
+  .cin-metric { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 5px; padding: 5px; }
+  .cin-metric-l { font-size: 7px; color: #30405A; text-transform: uppercase; font-weight: 600; letter-spacing: 0.07em; }
+  .cin-metric-v { font-size: 10px; color: #8090B0; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .cin-market-header { font-size: 8px; color: #30405A; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  .cin-market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .cin-market-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 4px; padding: 5px; }
+  .cin-mi-label { font-size: 7px; color: #30405A; }
+  .cin-mi-val { font-size: 11px; color: #8090B0; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cin-news-header { font-size: 8px; color: #30405A; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .cin-news-items { display: flex; flex-direction: column; gap: 5px; }
+  .cin-news-item { border-left: 1px solid rgba(0,158,224,0.25); padding-left: 6px; }
+  .cin-ni-src { font-size: 7px; color: #009EE0; font-weight: 600; }
+  .cin-ni-head { font-size: 8px; color: #404060; line-height: 1.4; }
+
+  /* Selection */
+  .select-btn {
+    display: block; width: 100%;
+    background: rgba(0,158,224,0.08);
+    border: 1px solid rgba(0,158,224,0.2);
+    color: #009EE0;
+    font-size: 12px; font-weight: 600;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 16px;
+    transition: background 0.2s;
+  }
+  .select-btn:hover { background: rgba(0,158,224,0.16); }
+  .option.selected .select-btn { background: rgba(0,158,224,0.2); border-color: #009EE0; }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #30405A;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">MSXI Intelligence Portal — Layout Design</div>
+<div class="page-heading">Choose a Layout Direction</div>
+<div class="page-sub">Three genuinely distinct approaches. No sidebars. Click to select your preference.</div>
+
+<div class="options-grid">
+
+  <!-- OPTION A -->
+  <div class="option recommended" id="optA" onclick="select('optA')">
+    <div class="option-mockup">
+
+      <!-- Floating Island Bar -->
+      <div class="island-bar">
+        <span class="island-logo">MSXI</span>
+        <div class="island-divider"></div>
+        <div class="island-brand">
+          <div class="island-brand-dot"></div>
+          Mercedes-Benz India
+        </div>
+        <span class="island-pill">BMW</span>
+        <span class="island-pill">Stellantis</span>
+        <div class="island-divider"></div>
+        <div class="island-live"><div class="live-pulse"></div> LIVE</div>
+      </div>
+
+      <!-- Bento Grid -->
+      <div class="bento-grid">
+        <div class="bento-cell hero">
+          <div class="bc-label">MBG.DE · Mercedes-Benz Group AG</div>
+          <div class="bc-value">€58.42</div>
+          <div class="bc-change-pos">↑ +1.24%</div>
+          <div class="bc-sub" style="margin-top: 8px;">Market Cap</div>
+          <div style="font-size:11px; color:#8090B0; font-variant-numeric:tabular-nums;">€62.3B</div>
+          <div class="bc-sub" style="margin-top: 6px;">Daily Range</div>
+          <div style="font-size:10px; color:#6070A0; font-variant-numeric:tabular-nums;">€57.80 — €59.20</div>
+          <div style="margin-top: auto; font-size: 7px; color: #20304A; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 6px;">SOURCE: YAHOO FINANCE · MBG.DE · LIVE</div>
+        </div>
+        <div class="bento-cell">
+          <div class="bc-label">Live Listings · India</div>
+          <div class="bc-value">1,284</div>
+          <div class="bc-sub">Active on CarDekho</div>
+        </div>
+        <div class="bento-cell">
+          <div class="bc-label">Avg Listing Price</div>
+          <div class="bc-value">₹92L</div>
+          <div class="bc-sub">Across all models</div>
+        </div>
+        <div class="bento-cell wide">
+          <div class="bc-label">Live Intelligence Stream</div>
+          <div class="news-row">
+            <div class="news-item-mini"><span>Autocar India · 2m ago</span><br>Mercedes-Benz India reports record Q1 SUV sales led by GLC</div>
+            <div class="news-item-mini"><span>ET Auto · 14m ago</span><br>EQS 580 4MATIC prices revised for FY2025 in India market</div>
+            <div class="news-item-mini"><span>Overdrive · 31m ago</span><br>DICV launches new Actros L for Indian logistics sector</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="option-info">
+      <div class="option-label">Option A</div>
+      <div class="option-name">Floating Island</div>
+      <div class="option-desc">A Dynamic Island–style pill floats at top center — holds MSXI logo, brand switcher, and live status. Below it, an asymmetric bento grid where each card has its own proportions. No rails, no sidebars, no chrome.</div>
+      <div class="tag-list">
+        <span class="tag">Bento Grid</span>
+        <span class="tag">Floating Nav Pill</span>
+        <span class="tag">Asymmetric Cards</span>
+        <span class="tag">Max Unique</span>
+      </div>
+      <button class="select-btn" onclick="select('optA'); event.stopPropagation();">Select Option A</button>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="option" id="optB" onclick="select('optB')">
+    <div class="option-mockup">
+
+      <div class="top-rail">
+        <span class="rail-logo">MSXI</span>
+        <div class="rail-brand-tabs">
+          <span class="rail-tab active">Mercedes India</span>
+          <span class="rail-tab inactive">BMW</span>
+          <span class="rail-tab inactive">Stellantis</span>
+        </div>
+        <div class="rail-sep"></div>
+        <div class="rail-status"><div class="live-pulse"></div> 14:32:08 IST</div>
+      </div>
+
+      <div class="canvas-b">
+        <div class="canvas-cell">
+          <div class="canvas-label">MBG.DE · Market Performance</div>
+          <div class="canvas-value">€58.42</div>
+          <div class="canvas-unit">+1.24% · €57.80 — €59.20</div>
+          <div class="metrics-mini">
+            <div class="metric-mini-item"><div class="metric-mini-val">€62.3B</div><div>Mkt Cap</div></div>
+            <div class="metric-mini-item"><div class="metric-mini-val">4.2M</div><div>Volume</div></div>
+            <div class="metric-mini-item"><div class="metric-mini-val">EUR</div><div>Currency</div></div>
+            <div class="metric-mini-item"><div class="metric-mini-val">FSE</div><div>Exchange</div></div>
+          </div>
+        </div>
+        <div class="canvas-cell">
+          <div class="canvas-label">Marketplace · India</div>
+          <div class="metrics-mini" style="grid-template-columns:1fr 1fr; margin-top:8px;">
+            <div class="metric-mini-item"><div class="metric-mini-val">1,284</div><div>Live Listings</div></div>
+            <div class="metric-mini-item"><div class="metric-mini-val">₹92L</div><div>Avg Price</div></div>
+            <div class="metric-mini-item"><div class="metric-mini-val">47d</div><div>Days on Market</div></div>
+            <div class="metric-mini-item"><div class="metric-mini-val">MH #1</div><div>Top Region</div></div>
+          </div>
+        </div>
+        <div class="canvas-cell news">
+          <span style="font-size:7px;color:#30405A;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">LIVE STREAM</span>
+          <div class="news-stream">
+            <div class="news-chip">Autocar India · Mercedes Q1 SUV record sales in India</div>
+            <div class="news-chip">ET Auto · EQS 580 price revision FY2025</div>
+            <div class="news-chip">Overdrive · DICV Actros L India launch</div>
+            <div class="news-chip">BS Motoring · GLC AMG Line India pricing</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="option-info">
+      <div class="option-label">Option B</div>
+      <div class="option-name">Top Rail + Canvas</div>
+      <div class="option-desc">A slim 48px top rail holds logo + brand pills + live clock. Below: full canvas split into market, marketplace, and a compact news ticker strip at the bottom. Clean, modern, no sidebar.</div>
+      <div class="tag-list">
+        <span class="tag">Top Rail Nav</span>
+        <span class="tag">Brand Pills</span>
+        <span class="tag">News Ticker</span>
+        <span class="tag">Bloomberg-esque</span>
+      </div>
+      <button class="select-btn" onclick="select('optB'); event.stopPropagation();">Select Option B</button>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="option" id="optC" onclick="select('optC')">
+    <div class="option-mockup">
+
+      <div class="cinematic-top">
+        <span class="cin-logo">MSXI</span>
+        <span class="cin-tag">/ Mercedes-Benz India Intelligence</span>
+        <div class="cin-right">
+          <span class="cin-badge">India Region</span>
+          <div class="cin-live"><div class="live-pulse"></div>LIVE</div>
+        </div>
+      </div>
+
+      <div class="cinematic-body">
+        <div class="cin-left">
+          <div class="bc-label">Frankfurt Stock Exchange · MBG.DE</div>
+          <div class="cin-ticker">€58.42</div>
+          <div class="cin-ticker-sub">Mercedes-Benz Group AG</div>
+          <div class="cin-change-pos">↑ +€0.71 (+1.24%) today</div>
+          <div class="cin-metrics">
+            <div class="cin-metric"><div class="cin-metric-l">Mkt Cap</div><div class="cin-metric-v">€62.3B</div></div>
+            <div class="cin-metric"><div class="cin-metric-l">52W High</div><div class="cin-metric-v">€78.40</div></div>
+            <div class="cin-metric"><div class="cin-metric-l">52W Low</div><div class="cin-metric-v">€48.20</div></div>
+            <div class="cin-metric"><div class="cin-metric-l">Day High</div><div class="cin-metric-v">€59.20</div></div>
+            <div class="cin-metric"><div class="cin-metric-l">Day Low</div><div class="cin-metric-v">€57.80</div></div>
+            <div class="cin-metric"><div class="cin-metric-l">Volume</div><div class="cin-metric-v">4.2M</div></div>
+          </div>
+          <div style="margin-top:auto;font-size:7px;color:#20304A;border-top:1px solid rgba(255,255,255,0.04);padding-top:6px;">SOURCE: YAHOO FINANCE · MBG.DE · REFRESHED EVERY 30s</div>
+        </div>
+        <div class="cin-right-col">
+          <div class="cin-marketplace">
+            <div class="cin-market-header">Marketplace · India</div>
+            <div class="cin-market-grid">
+              <div class="cin-market-item"><div class="cin-mi-label">Live Listings</div><div class="cin-mi-val">1,284</div></div>
+              <div class="cin-market-item"><div class="cin-mi-label">Avg List Price</div><div class="cin-mi-val">₹92L</div></div>
+              <div class="cin-market-item"><div class="cin-mi-label">Days on Market</div><div class="cin-mi-val">47 days</div></div>
+              <div class="cin-market-item"><div class="cin-mi-label">Top Region</div><div class="cin-mi-val">Maharashtra</div></div>
+            </div>
+          </div>
+          <div class="cin-news">
+            <div class="cin-news-header">Intelligence Stream</div>
+            <div class="cin-news-items">
+              <div class="cin-news-item"><div class="cin-ni-src">Autocar India · 2m ago</div><div class="cin-ni-head">Mercedes-Benz India reports record Q1 SUV sales led by GLC</div></div>
+              <div class="cin-news-item"><div class="cin-ni-src">ET Auto · 14m ago</div><div class="cin-ni-head">EQS 580 4MATIC prices revised for FY2025 India</div></div>
+              <div class="cin-news-item"><div class="cin-ni-src">Overdrive · 31m ago</div><div class="cin-ni-head">DICV launches Actros L for Indian logistics</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="option-info">
+      <div class="option-label">Option C</div>
+      <div class="option-name">Cinematic Split</div>
+      <div class="option-desc">A razor-thin top bar (logo + region badge + live). Full canvas split: left 55% = large hero stock panel with all metrics. Right 45% = marketplace grid top, scrollable news stream bottom. Data-hero feel.</div>
+      <div class="tag-list">
+        <span class="tag">Hero Stock Panel</span>
+        <span class="tag">Vertical Split</span>
+        <span class="tag">Data-Forward</span>
+        <span class="tag">Cinematic</span>
+      </div>
+      <button class="select-btn" onclick="select('optC'); event.stopPropagation();">Select Option C</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">All layouts are zero-scroll · single viewport · tabular-nums throughout · Framer Motion spring animations on all interactions</div>
+
+<script>
+  let selected = null;
+  function select(id) {
+    if (selected) document.getElementById(selected).classList.remove('selected');
+    selected = id;
+    document.getElementById(id).classList.add('selected');
+    const names = { optA: 'A — Floating Island', optB: 'B — Top Rail + Canvas', optC: 'C — Cinematic Split' };
+    document.querySelector('.footer').textContent = '✓ Selected: ' + names[id] + '  —  Tell Claude your choice in the terminal';
+  }
+</script>
+
+</body>
+</html>

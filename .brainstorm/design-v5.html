@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSXI — Mercedes-Benz India Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0D0C14;--s1:#13121E;--s2:#191828;--s3:#1F1E30;
+  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.13);
+  --t1:#EDE9DF;--t2:#7A7685;--t3:#3F3D4E;
+  --silver:#BDBBB6;--chrome:#888580;--gold:#C4933F;
+  --pos:#3DB87A;--neg:#D95454;--blue:#4A7AE0;
+  --bmw:#1C69D4;--stl:#C82327;--hyu:#002C5F;
+  --ff-h:'Space Grotesk',system-ui,sans-serif;
+  --ff-b:'Inter',system-ui,sans-serif;
+}
+html,body{width:100%;height:100vh;background:var(--bg);color:var(--t1);font-family:var(--ff-b);overflow:hidden;-webkit-font-smoothing:antialiased;}
+.shell{display:grid;grid-template-rows:52px 1fr;height:100vh;opacity:0;animation:shellIn .6s ease forwards;}
+@keyframes shellIn{to{opacity:1;}}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;padding:0 28px;background:var(--s1);border-bottom:1px solid var(--b1);gap:0;z-index:20;animation:slideDown .5s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes slideDown{from{transform:translateY(-52px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.msxi-wm{font-family:var(--ff-h);font-size:17px;font-weight:800;letter-spacing:-.01em;color:var(--t1);}
+.msxi-wm em{font-style:normal;color:var(--blue);}
+.sep{width:1px;height:20px;background:var(--b2);margin:0 20px;flex-shrink:0;}
+.bar-ctx{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);flex:1;}
+.bar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.pill{font-size:9px;font-weight:700;letter-spacing:.07em;padding:4px 11px;border-radius:3px;border:1.5px solid transparent;cursor:default;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.pill-mb{color:var(--t1);background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);}
+.pill-bmw{color:var(--bmw);border-color:rgba(28,105,212,.3);background:rgba(28,105,212,.08);opacity:.6;}
+.pill-stl{color:var(--stl);border-color:rgba(200,35,39,.3);background:rgba(200,35,39,.06);opacity:.5;}
+.pill-hyu{color:#5090CC;border-color:rgba(0,44,95,.4);background:rgba(0,44,95,.15);opacity:.5;}
+.india-badge{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--chrome);border:1px solid var(--b2);padding:3px 9px;border-radius:2px;background:rgba(255,255,255,.03);}
+.live-wrap{display:flex;align-items:center;gap:7px;}
+.live-ring{position:relative;width:10px;height:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.live-ring::before,.live-ring::after{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--pos);animation:rippleOut 2s ease-out infinite;}
+.live-ring::after{animation-delay:.7s;}
+.live-core{width:6px;height:6px;border-radius:50%;background:var(--pos);position:relative;z-index:1;}
+@keyframes rippleOut{0%{transform:scale(1);opacity:.8;}100%{transform:scale(3);opacity:0;}}
+.live-txt{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--pos);}
+.bar-clk{font-size:11px;color:var(--t3);font-variant-numeric:tabular-nums;letter-spacing:.04em;}
+
+/* ── CANVAS ── */
+.canvas{display:grid;grid-template-columns:55% 45%;overflow:hidden;}
+
+/* ── LEFT MARKET ── */
+.mkt-panel{background:var(--s1);border-right:1px solid var(--b1);padding:32px 40px;display:flex;flex-direction:column;position:relative;overflow:hidden;animation:panelL .7s cubic-bezier(.16,1,.3,1) .15s both;}
+@keyframes panelL{from{opacity:0;transform:translateX(-24px);}to{opacity:1;transform:translateX(0);}}
+.star-wm{position:absolute;right:-100px;bottom:-100px;width:440px;height:440px;opacity:.03;pointer-events:none;animation:rot 80s linear infinite;}
+@keyframes rot{to{transform:rotate(360deg);}}
+.scanline{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(189,187,182,.5),transparent);animation:scan 1.4s cubic-bezier(.4,0,.6,1) .4s forwards;top:-4px;pointer-events:none;}
+@keyframes scan{from{top:-4px;opacity:1;}to{top:102%;opacity:0;}}
+.eyebrow{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--t3);margin-bottom:14px;}
+
+/* Brand identity row — official logos */
+.brand-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:22px;border-bottom:1px solid var(--b1);}
+.brand-logos{display:flex;align-items:center;gap:14px;}
+.mb-star-logo{width:44px;height:44px;flex-shrink:0;}
+.mb-wordmark{height:18px;flex-shrink:0;filter:brightness(0) invert(.85);}
+.logo-divider{width:1px;height:24px;background:var(--b2);flex-shrink:0;}
+.amg-logo{height:14px;flex-shrink:0;filter:brightness(0) invert(.7);}
+.brand-sub{font-size:10px;color:var(--t3);letter-spacing:.03em;margin-top:4px;margin-left:2px;}
+
+/* Price */
+.price-ctx{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:6px;}
+.price-row{display:flex;align-items:baseline;gap:6px;margin-bottom:3px;}
+.price-ccy{font-family:var(--ff-h);font-size:24px;font-weight:400;color:var(--t2);}
+.price-num{font-family:var(--ff-h);font-size:60px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1;transition:color .25s;}
+.price-num.fp{color:var(--pos);}
+.price-num.fn{color:var(--neg);}
+.price-inr{font-size:11px;color:var(--t3);font-variant-numeric:tabular-nums;margin-bottom:18px;}
+.chg-row{display:flex;align-items:center;gap:18px;margin-bottom:24px;padding-bottom:22px;border-bottom:1px solid var(--b1);}
+.chg-up{font-family:var(--ff-h);font-size:16px;font-weight:700;color:var(--pos);font-variant-numeric:tabular-nums;}
+.chg-dn{font-family:var(--ff-h);font-size:16px;font-weight:700;color:var(--neg);font-variant-numeric:tabular-nums;}
+.chg-lbl{font-size:9px;color:var(--t3);letter-spacing:.10em;text-transform:uppercase;}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--b1);border-radius:8px;overflow:hidden;border:1px solid var(--b1);margin-bottom:auto;}
+.mc{background:var(--s2);padding:14px 16px;display:flex;flex-direction:column;gap:5px;transition:background .15s;animation:mcIn .5s ease both;}
+.mc:nth-child(1){animation-delay:.55s;}.mc:nth-child(2){animation-delay:.62s;}.mc:nth-child(3){animation-delay:.69s;}
+.mc:nth-child(4){animation-delay:.76s;}.mc:nth-child(5){animation-delay:.83s;}.mc:nth-child(6){animation-delay:.90s;}
+@keyframes mcIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.mc:hover{background:var(--s3);}
+.mc-l{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);}
+.mc-v{font-family:var(--ff-h);font-size:18px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+.mc-s{font-size:9px;color:var(--t3);font-variant-numeric:tabular-nums;}
+.src-stamp{margin-top:16px;padding-top:14px;border-top:1px solid var(--b1);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:7px;}
+.src-dot{width:5px;height:5px;border-radius:50%;background:var(--pos);flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+/* ── RIGHT ── */
+.right-col{display:grid;grid-template-rows:1fr 1fr;background:var(--bg);}
+.mp-panel{background:var(--s1);border-bottom:1px solid var(--b1);padding:24px 28px;display:flex;flex-direction:column;animation:panelR .7s cubic-bezier(.16,1,.3,1) .3s both;}
+.news-panel{background:var(--s1);padding:20px 28px;display:flex;flex-direction:column;overflow:hidden;animation:panelR .7s cubic-bezier(.16,1,.3,1) .5s both;}
+@keyframes panelR{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.pt{font-family:var(--ff-h);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t2);}
+.demo-tag{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(196,147,63,.25);background:rgba(196,147,63,.08);padding:2px 7px;border-radius:2px;}
+
+.mp-cards{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px;flex:1;margin-bottom:10px;}
+.mpc{background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;transition:all .2s cubic-bezier(.16,1,.3,1);cursor:default;animation:mpcIn .5s ease both;}
+.mpc:nth-child(1){animation-delay:.4s;}.mpc:nth-child(2){animation-delay:.48s;}.mpc:nth-child(3){animation-delay:.56s;}.mpc:nth-child(4){animation-delay:.64s;}
+@keyframes mpcIn{from{opacity:0;transform:scale(.97);}to{opacity:1;transform:scale(1);}}
+.mpc:hover{background:var(--s3);border-color:var(--b2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+.mpc-l{font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--t3);}
+.mpc-v{font-family:var(--ff-h);font-size:22px;font-weight:800;color:var(--t1);font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
+.mpc-s{font-size:9px;color:var(--t3);margin-top:2px;}
+
+.region-section{border-top:1px solid var(--b1);padding-top:9px;}
+.reg-hdr{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
+.reg-row{display:flex;flex-direction:column;gap:5px;}
+.reg-item{display:flex;align-items:center;gap:8px;}
+.reg-name{font-size:9px;color:var(--t2);width:86px;flex-shrink:0;font-weight:500;}
+.reg-bar-bg{flex:1;height:3px;background:var(--b2);border-radius:2px;overflow:hidden;}
+.reg-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--silver),var(--chrome));width:0;transition:width 1.2s cubic-bezier(.16,1,.3,1);}
+.reg-val{font-size:9px;color:var(--t3);width:30px;text-align:right;font-variant-numeric:tabular-nums;}
+.mp-src{margin-top:8px;font-size:9px;letter-spacing:.10em;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:6px;}
+
+.news-list{flex:1;display:flex;flex-direction:column;gap:0;overflow:hidden;}
+.ni{padding:9px 0 9px 13px;border-bottom:1px solid var(--b1);display:flex;flex-direction:column;gap:4px;cursor:pointer;position:relative;transition:padding-left .2s cubic-bezier(.16,1,.3,1);animation:niIn .4s ease both;}
+.ni:nth-child(1){animation-delay:.6s;}.ni:nth-child(2){animation-delay:.72s;}.ni:nth-child(3){animation-delay:.84s;}.ni:nth-child(4){animation-delay:.96s;}
+@keyframes niIn{from{opacity:0;transform:translateX(12px);}to{opacity:1;transform:translateX(0);}}
+.ni::before{content:'';position:absolute;left:0;top:9px;bottom:9px;width:2px;background:transparent;border-radius:2px;transition:background .15s;}
+.ni:hover::before{background:var(--silver);}
+.ni:hover{padding-left:18px;}
+.ni:last-child{border-bottom:none;}
+.ni-meta{display:flex;align-items:center;gap:7px;}
+.src-badge{font-size:8px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding:2px 6px;border-radius:2px;}
+.sb-ac{background:rgba(220,100,0,.12);color:#E08040;}
+.sb-et{background:rgba(40,160,100,.12);color:#3DB87A;}
+.sb-od{background:rgba(74,122,224,.15);color:#7AA0E8;}
+.sb-bs{background:rgba(196,147,63,.12);color:#C4933F;}
+.ni-time{font-size:9px;color:var(--t3);font-variant-numeric:tabular-nums;}
+.ni-head{font-size:12px;font-weight:400;color:var(--t2);line-height:1.45;transition:color .15s;}
+.ni:hover .ni-head{color:var(--t1);}
+.ni-link{font-size:9px;font-weight:600;letter-spacing:.08em;color:var(--t3);text-decoration:none;text-transform:uppercase;transition:color .15s;}
+.ni:hover .ni-link{color:var(--silver);}
+.news-src{margin-top:8px;padding-top:8px;border-top:1px solid var(--b1);font-size:9px;letter-spacing:.10em;text-transform:uppercase;color:var(--t3);}
+
+/* ── OVERLAY ── */
+.connect-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:100;animation:ovOut .5s ease 1.6s forwards;pointer-events:none;}
+@keyframes ovOut{to{opacity:0;visibility:hidden;}}
+.co-star{animation:coS 1s ease-in-out infinite alternate;}
+@keyframes coS{to{transform:scale(1.06);opacity:.7;}}
+.co-text{font-family:var(--ff-h);font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--t3);}
+.co-bar-bg{width:200px;height:1px;background:var(--b2);border-radius:1px;overflow:hidden;}
+.co-bar-fill{height:100%;background:var(--silver);border-radius:1px;animation:coFill 1.4s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes coFill{from{width:0;}to{width:100%;}}
+</style>
+</head>
+<body>
+
+<!-- OVERLAY -->
+<div class="connect-overlay">
+  <!-- Official Mercedes-Benz star SVG (chrome gradient recreation) -->
+  <svg class="co-star" width="64" height="64" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="bgG" cx="38%" cy="32%" r="68%">
+        <stop offset="0%" stop-color="#D8D8D8"/>
+        <stop offset="45%" stop-color="#A0A0A0"/>
+        <stop offset="100%" stop-color="#606060"/>
+      </radialGradient>
+      <linearGradient id="ringG" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#707070"/>
+        <stop offset="30%" stop-color="#E0E0E0"/>
+        <stop offset="55%" stop-color="#C0C0C0"/>
+        <stop offset="80%" stop-color="#E8E8E8"/>
+        <stop offset="100%" stop-color="#808080"/>
+      </linearGradient>
+      <linearGradient id="arm1G" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop offset="0%" stop-color="#3A3A3A"/>
+        <stop offset="40%" stop-color="#888888"/>
+        <stop offset="100%" stop-color="#C8C8C8"/>
+      </linearGradient>
+      <linearGradient id="arm2G" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#C8C8C8"/>
+        <stop offset="60%" stop-color="#707070"/>
+        <stop offset="100%" stop-color="#3A3A3A"/>
+      </linearGradient>
+      <linearGradient id="arm3G" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#909090"/>
+        <stop offset="50%" stop-color="#B0B0B0"/>
+        <stop offset="100%" stop-color="#505050"/>
+      </linearGradient>
+    </defs>
+    <!-- Background sphere -->
+    <circle cx="100" cy="100" r="92" fill="url(#bgG)"/>
+    <!-- Outer chrome ring -->
+    <circle cx="100" cy="100" r="92" fill="none" stroke="url(#ringG)" stroke-width="10"/>
+    <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+    <!-- Top arm (12 o'clock) -->
+    <path d="M100 10 L106 95 L100 108 L94 95 Z" fill="url(#arm1G)"/>
+    <!-- Bottom-right arm (4 o'clock = 120°) -->
+    <path d="M100 10 L106 95 L100 108 L94 95 Z" fill="url(#arm2G)" transform="rotate(120,100,100)"/>
+    <!-- Bottom-left arm (8 o'clock = 240°) -->
+    <path d="M100 10 L106 95 L100 108 L94 95 Z" fill="url(#arm3G)" transform="rotate(240,100,100)"/>
+    <!-- Center hub -->
+    <circle cx="100" cy="100" r="9" fill="#D0D0D0"/>
+    <circle cx="100" cy="100" r="6" fill="#B0B0B0"/>
+  </svg>
+  <div class="co-text">Connecting to live feeds</div>
+  <div class="co-bar-bg"><div class="co-bar-fill"></div></div>
+</div>
+
+<!-- SHELL -->
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <span class="msxi-wm">MSX<em>I</em></span>
+    <div class="sep"></div>
+    <span class="bar-ctx">Live OEM Intelligence · India</span>
+    <div class="bar-right">
+      <span class="pill pill-mb">
+        <!-- Inline mini star for active pill -->
+        <svg width="11" height="11" viewBox="0 0 200 200" fill="none" style="flex-shrink:0;">
+          <circle cx="100" cy="100" r="90" fill="none" stroke="currentColor" stroke-width="12"/>
+          <path d="M100 18 L107 88 L100 105 L93 88Z" fill="currentColor"/>
+          <path d="M100 18 L107 88 L100 105 L93 88Z" fill="currentColor" transform="rotate(120,100,100)"/>
+          <path d="M100 18 L107 88 L100 105 L93 88Z" fill="currentColor" transform="rotate(240,100,100)"/>
+        </svg>
+        Mercedes India
+      </span>
+      <span class="pill pill-bmw">BMW India</span>
+      <span class="pill pill-stl">Stellantis</span>
+      <span class="pill pill-hyu">Hyundai India</span>
+      <div class="sep"></div>
+      <span class="india-badge">🇮🇳 India</span>
+      <div class="live-wrap">
+        <div class="live-ring"><div class="live-core"></div></div>
+        <span class="live-txt">Live</span>
+      </div>
+      <span class="bar-clk" id="clk">--:--:-- IST</span>
+    </div>
+  </header>
+
+  <!-- CANVAS -->
+  <div class="canvas">
+
+    <!-- ── LEFT ── -->
+    <section class="mkt-panel">
+      <div class="scanline"></div>
+
+      <!-- Watermark — large star in bg -->
+      <svg class="star-wm" viewBox="0 0 200 200" fill="none">
+        <circle cx="100" cy="100" r="96" stroke="#EDE9DF" stroke-width="1.5"/>
+        <circle cx="100" cy="100" r="76" stroke="#EDE9DF" stroke-width="0.5"/>
+        <path d="M100 10L106 82L100 100L94 82Z" fill="#EDE9DF"/>
+        <path d="M100 10L106 82L100 100L94 82Z" fill="#EDE9DF" transform="rotate(120,100,100)"/>
+        <path d="M100 10L106 82L100 100L94 82Z" fill="#EDE9DF" transform="rotate(240,100,100)"/>
+        <circle cx="100" cy="100" r="10" fill="#EDE9DF"/>
+      </svg>
+
+      <div class="eyebrow">Frankfurt Stock Exchange · MBG.DE · Auto-Refresh 30s</div>
+
+      <!-- Official logo row -->
+      <div class="brand-row">
+        <div class="brand-logos">
+          <!-- Full Mercedes star (chrome) -->
+          <svg class="mb-star-logo" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="bg2" cx="38%" cy="32%" r="68%">
+                <stop offset="0%" stop-color="#D8D8D8"/>
+                <stop offset="45%" stop-color="#A8A8A8"/>
+                <stop offset="100%" stop-color="#606060"/>
+              </radialGradient>
+              <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#707070"/>
+                <stop offset="30%" stop-color="#E0E0E0"/>
+                <stop offset="55%" stop-color="#C0C0C0"/>
+                <stop offset="80%" stop-color="#E8E8E8"/>
+                <stop offset="100%" stop-color="#808080"/>
+              </linearGradient>
+              <linearGradient id="a1" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stop-color="#2A2A2A"/><stop offset="40%" stop-color="#888"/><stop offset="100%" stop-color="#C8C8C8"/>
+              </linearGradient>
+              <linearGradient id="a2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#C8C8C8"/><stop offset="60%" stop-color="#707070"/><stop offset="100%" stop-color="#2A2A2A"/>
+              </linearGradient>
+              <linearGradient id="a3" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#909090"/><stop offset="50%" stop-color="#B0B0B0"/><stop offset="100%" stop-color="#404040"/>
+              </linearGradient>
+            </defs>
+            <circle cx="100" cy="100" r="92" fill="url(#bg2)"/>
+            <circle cx="100" cy="100" r="92" fill="none" stroke="url(#rg2)" stroke-width="10"/>
+            <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+            <path d="M100 10 L106 95 L100 108 L94 95 Z" fill="url(#a1)"/>
+            <path d="M100 10 L106 95 L100 108 L94 95 Z" fill="url(#a2)" transform="rotate(120,100,100)"/>
+            <path d="M100 10 L106 95 L100 108 L94 95 Z" fill="url(#a3)" transform="rotate(240,100,100)"/>
+            <circle cx="100" cy="100" r="9" fill="#D0D0D0"/>
+            <circle cx="100" cy="100" r="5" fill="#A8A8A8"/>
+          </svg>
+
+          <!-- Mercedes-Benz wordmark (SVG text in correct style) -->
+          <svg height="20" viewBox="0 0 320 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="32" font-family="'Georgia','Times New Roman',serif" font-size="34" font-weight="400" fill="#BDBBB6" letter-spacing="-0.5">Mercedes-Benz</text>
+          </svg>
+
+          <div class="logo-divider"></div>
+
+          <!-- AMG Logo — three diagonal lines + AMG text -->
+          <svg height="20" viewBox="0 0 180 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Three diagonal speed stripes -->
+            <g fill="#888580">
+              <rect x="0" y="4" width="10" height="28" rx="1" transform="skewX(-14)"/>
+              <rect x="14" y="4" width="10" height="28" rx="1" transform="skewX(-14)"/>
+              <rect x="28" y="4" width="10" height="28" rx="1" transform="skewX(-14)"/>
+            </g>
+            <!-- AMG wordmark -->
+            <text x="50" y="29" font-family="'Arial Black','Impact',sans-serif" font-size="28" font-weight="900" fill="#888580" letter-spacing="1">AMG</text>
+          </svg>
+        </div>
+        <div class="brand-sub">Daimler AG · XETRA · EUR · India Subsidiary: MBIPL · DICV</div>
+      </div>
+
+      <div class="price-ctx">Last Traded Price</div>
+      <div class="price-row">
+        <span class="price-ccy">€</span>
+        <span class="price-num" id="priceNum">--</span>
+      </div>
+      <div class="price-inr" id="priceInr">≈ ₹-- per share · at ₹91.22/EUR</div>
+
+      <div class="chg-row">
+        <span class="chg-up" id="chgVal">↑ +€0.71 (+1.24%)</span>
+        <span class="chg-lbl">Today's Change</span>
+      </div>
+
+      <div class="metrics">
+        <div class="mc"><span class="mc-l">Market Cap</span><span class="mc-v" data-dec="62.3" data-pre="€" data-suf="B">--</span></div>
+        <div class="mc"><span class="mc-l">Day High</span><span class="mc-v" data-fix="59.20" data-pre="€">--</span></div>
+        <div class="mc"><span class="mc-l">Day Low</span><span class="mc-v" data-fix="57.80" data-pre="€">--</span></div>
+        <div class="mc"><span class="mc-l">52W High</span><span class="mc-v" data-fix="78.40" data-pre="€">--</span></div>
+        <div class="mc"><span class="mc-l">52W Low</span><span class="mc-v" data-fix="48.20" data-pre="€">--</span></div>
+        <div class="mc"><span class="mc-l">Volume Today</span><span class="mc-v" data-dec="4.2" data-pre="" data-suf="M">--</span><span class="mc-s">Shares</span></div>
+      </div>
+
+      <div class="src-stamp">
+        <div class="src-dot"></div>
+        Source: Yahoo Finance · MBG.DE · Live Feed · India Context
+      </div>
+    </section>
+
+    <!-- ── RIGHT ── -->
+    <div class="right-col">
+
+      <!-- MARKETPLACE -->
+      <section class="mp-panel">
+        <div class="ph">
+          <span class="pt">Marketplace · India</span>
+          <span class="demo-tag">Demo Data</span>
+        </div>
+        <div class="mp-cards">
+          <div class="mpc"><span class="mpc-l">Live Listings · India</span><div><div class="mpc-v" data-int="1284">--</div><div class="mpc-s">New + Pre-owned</div></div></div>
+          <div class="mpc"><span class="mpc-l">Avg Listing Price</span><div><div class="mpc-v">₹92.4L</div><div class="mpc-s">All models · ex-showroom</div></div></div>
+          <div class="mpc"><span class="mpc-l">Days on Market</span><div><div class="mpc-v" data-int="47" data-suf="d">--</div><div class="mpc-s">Avg per listing</div></div></div>
+          <div class="mpc"><span class="mpc-l">VAHAN Registrations</span><div><div class="mpc-v" data-int="2148">--</div><div class="mpc-s">Apr 2025 · India</div></div></div>
+        </div>
+        <div class="region-section">
+          <div class="reg-hdr">Registrations by State · Apr 2025</div>
+          <div class="reg-row">
+            <div class="reg-item"><span class="reg-name">Maharashtra</span><div class="reg-bar-bg"><div class="reg-bar-fill" data-pct="90"></div></div><span class="reg-val">684</span></div>
+            <div class="reg-item"><span class="reg-name">Karnataka</span><div class="reg-bar-bg"><div class="reg-bar-fill" data-pct="60"></div></div><span class="reg-val">412</span></div>
+            <div class="reg-item"><span class="reg-name">Delhi NCR</span><div class="reg-bar-bg"><div class="reg-bar-fill" data-pct="56"></div></div><span class="reg-val">380</span></div>
+            <div class="reg-item"><span class="reg-name">Tamil Nadu</span><div class="reg-bar-bg"><div class="reg-bar-fill" data-pct="43"></div></div><span class="reg-val">296</span></div>
+          </div>
+        </div>
+        <div class="mp-src"><div class="src-dot" style="background:var(--gold);animation:none;width:4px;height:4px;"></div>Source: VAHAN · CarDekho India · Market Composite</div>
+      </section>
+
+      <!-- NEWS -->
+      <section class="news-panel">
+        <div class="ph">
+          <span class="pt">Intelligence Stream</span>
+          <div class="live-wrap"><div class="live-ring"><div class="live-core"></div></div><span class="live-txt">Live RSS</span></div>
+        </div>
+        <div class="news-list">
+          <div class="ni">
+            <div class="ni-meta"><span class="src-badge sb-ac">Autocar India</span><span class="ni-time">2 min ago · 14:30 IST</span></div>
+            <div class="ni-head">Mercedes-Benz India reports record Q1 2025 SUV sales — GLC leads luxury segment with 34% share in India</div>
+            <a class="ni-link" href="#">Read Original ↗</a>
+          </div>
+          <div class="ni">
+            <div class="ni-meta"><span class="src-badge sb-et">ET Auto</span><span class="ni-time">14 min ago · 14:18 IST</span></div>
+            <div class="ni-head">EQS 580 4MATIC prices revised for FY2025 India — ex-showroom Delhi ₹1.55 Crore</div>
+            <a class="ni-link" href="#">Read Original ↗</a>
+          </div>
+          <div class="ni">
+            <div class="ni-meta"><span class="src-badge sb-od">Overdrive</span><span class="ni-time">31 min ago · 14:01 IST</span></div>
+            <div class="ni-head">DICV launches Actros L for India long-haul logistics — ₹52 Lakh onwards ex-Mumbai</div>
+            <a class="ni-link" href="#">Read Original ↗</a>
+          </div>
+          <div class="ni">
+            <div class="ni-meta"><span class="src-badge sb-bs">BS Motoring</span><span class="ni-time">1h ago · 13:32 IST</span></div>
+            <div class="ni-head">AMG GLC 63 S e Performance India launch confirmed Q3 2025 — est. ₹2.4 Cr ex-showroom</div>
+            <a class="ni-link" href="#">Read Original ↗</a>
+          </div>
+        </div>
+        <div class="news-src">Source: Autocar India · ET Auto · Overdrive · BS Motoring — Raw RSS · Unedited Text</div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+function tick(){const n=new Date(),p=v=>String(v).padStart(2,'0');document.getElementById('clk').textContent=`${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())} IST`;}
+tick();setInterval(tick,1000);
+
+const ease=p=>1-Math.pow(1-p,3);
+
+function countDec(el,target,dur,pre,suf){
+  const s=performance.now();
+  (function f(n){const p=Math.min((n-s)/dur,1);el.textContent=pre+(ease(p)*target).toFixed(1)+suf;if(p<1)requestAnimationFrame(f);})(s);
+}
+function countFix(el,target,dur,pre){
+  const s=performance.now();
+  (function f(n){const p=Math.min((n-s)/dur,1);el.textContent=pre+(ease(p)*target).toFixed(2);if(p<1)requestAnimationFrame(f);else el.textContent=pre+target.toFixed(2);})(s);
+}
+function countInt(el,target,dur,suf){
+  const s=performance.now();
+  (function f(n){const p=Math.min((n-s)/dur,1);el.textContent=Math.round(ease(p)*target).toLocaleString('en-IN')+(suf||'');if(p<1)requestAnimationFrame(f);})(s);
+}
+function animPrice(){
+  const el=document.getElementById('priceNum'),inr=document.getElementById('priceInr'),t=58.42,s=performance.now();
+  (function f(n){const p=Math.min((n-s)/950,1),v=(ease(p)*t).toFixed(2);
+    el.textContent=v;inr.textContent=`≈ ₹${Math.round(parseFloat(v)*91.22).toLocaleString('en-IN')} per share · at ₹91.22/EUR`;
+    if(p<1)requestAnimationFrame(f);})(s);
+}
+
+setTimeout(()=>{
+  animPrice();
+  document.querySelectorAll('[data-dec]').forEach(el=>countDec(el,+el.dataset.dec,800,el.dataset.pre||'',el.dataset.suf||''));
+  document.querySelectorAll('[data-fix]').forEach(el=>countFix(el,+el.dataset.fix,700,el.dataset.pre||''));
+  document.querySelectorAll('[data-int]').forEach(el=>countInt(el,+el.dataset.int,900,el.dataset.suf));
+  setTimeout(()=>document.querySelectorAll('.reg-bar-fill').forEach(b=>b.style.width=b.dataset.pct+'%'),400);
+},1700);
+
+let base=58.42,dir=1;
+setInterval(()=>{
+  base=Math.max(57.5,Math.min(59.5,base+(Math.random()*.12-.04)*dir));
+  dir=Math.random()>.35?1:-1;
+  const el=document.getElementById('priceNum'),inrEl=document.getElementById('priceInr'),chgEl=document.getElementById('chgVal');
+  const prev=parseFloat(el.textContent||base);
+  el.textContent=base.toFixed(2);
+  el.classList.remove('fp','fn');
+  const up=base>=prev;
+  el.classList.add(up?'fp':'fn');
+  chgEl.className=up?'chg-up':'chg-dn';
+  const diff=Math.abs(base-58.42),pct=(base-58.42)/58.42*100;
+  chgEl.textContent=`${base>=58.42?'↑ +':'↓ -'}€${diff.toFixed(2)} (${Math.abs(pct).toFixed(2)}%)`;
+  inrEl.textContent=`≈ ₹${Math.round(base*91.22).toLocaleString('en-IN')} per share · at ₹91.22/EUR`;
+  setTimeout(()=>el.classList.remove('fp','fn'),600);
+},8000);
+</script>
+</body>
+</html>
