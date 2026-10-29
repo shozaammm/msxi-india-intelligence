@@ -1,102 +1,98 @@
 'use client'
-import { useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { MagnifyingGlass, X } from '@phosphor-icons/react'
 import { useAppStore } from '@/lib/store'
-import { NewsPanel } from '@/components/news/NewsPanel'
 import { useNewsData } from '@/hooks/useNewsData'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search } from 'lucide-react'
+import { NewsPanel } from '@/components/news/NewsPanel'
+import { Panel } from '@/components/ui/Panel'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { relativeTime } from '@/lib/utils'
 
-export default function NewsPage() {
-  const activeBrand = useAppStore(state => state.activeBrand)
-  const { data: newsData } = useNewsData(activeBrand)
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // Filter sources for stats
-  const sourceStats = newsData ? newsData.reduce((acc, curr) => {
-    acc[curr.source] = (acc[curr.source] || 0) + 1
-    return acc;
-  }, {} as Record<string, number>) : {}
-
-  const sortedSources = Object.entries(sourceStats).sort((a, b) => b[1] - a[1])
+function SourcesPanel() {
+  const brand = useAppStore((s) => s.activeBrand)
+  const { data, isLoading } = useNewsData(brand)
+  const sources = useMemo(() => {
+    const counts = new Map<string, { n: number; india: boolean }>()
+    for (const i of data?.data ?? []) {
+      const c = counts.get(i.source) ?? { n: 0, india: i.region === 'india' }
+      counts.set(i.source, { ...c, n: c.n + 1 })
+    }
+    return [...counts.entries()].sort((a, b) => b[1].n - a[1].n)
+  }, [data])
 
   return (
-    <div className="flex-1 grid overflow-hidden h-full min-h-[800px] gap-6 p-6" style={{ gridTemplateColumns: '60% 40%' }}>
-      {/* Left panel: Direct live intelligence feed */}
-      <div className="rounded-xl border border-white/[0.08] overflow-hidden bg-[#13121E] shadow-sm flex flex-col h-full">
-        <NewsPanel brand={activeBrand} />
-      </div>
+    <Panel
+      title="Who is writing"
+      kicker="Sources"
+      footer={data && <p className="text-[11.5px] text-fg-3">{data.meta.feedsOk} of {data.meta.feedsTotal} feeds responded · refreshed {relativeTime(data.meta.fetchedAt)}</p>}
+    >
+      {isLoading ? (
+        <div className="flex flex-col gap-2.5">{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-5" />)}</div>
+      ) : (
+        <ol className="flex flex-col">
+          {sources.slice(0, 12).map(([name, { n, india }], i) => (
+            <li key={name} className="hairline grid grid-cols-[22px_1fr_auto] items-center gap-2 border-b py-2 last:border-0">
+              <span className="num text-[12px] text-fg-3">{i + 1}</span>
+              <span className="truncate text-[13px] text-fg">
+                {name}
+                {india && <span className="ml-2 rounded-[3px] px-1 text-[10.5px] text-fg-3 ring-1 ring-line/10">IN</span>}
+              </span>
+              <span className="num text-[12.5px] text-fg-2">{n}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Panel>
+  )
+}
 
-      {/* Right panel: Keyword search & Source distribution */}
-      <div className="rounded-xl border border-white/[0.08] bg-[#13121E] p-6 flex flex-col justify-between shadow-sm h-full relative overflow-hidden">
-        {/* Soft decorative glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#C5A880]/[0.02] blur-3xl pointer-events-none" />
+function NewsContent() {
+  const brand = useAppStore((s) => s.activeBrand)
+  const router = useRouter()
+  const params = useSearchParams()
+  const [query, setQuery] = useState(params.get('q') ?? '')
 
-        <div className="flex flex-col gap-6 overflow-hidden">
-          {/* Header */}
-          <div className="border-b border-white/[0.07] pb-4">
-            <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-[#C5A880]">AGGREGATOR SHELL</span>
-            <h2 className="text-xl font-bold text-[#EDE9DF] mt-1">Intelligence Distribution</h2>
-          </div>
+  const update = (q: string) => {
+    setQuery(q)
+    router.replace(q ? `/news?q=${encodeURIComponent(q)}` : '/news', { scroll: false })
+  }
 
-          {/* Interactive Search Tool */}
-          <div className="relative">
-            <Search className="absolute left-3 top-3.5 h-4.5 w-4.5 text-[#EDE9DF]/40" />
-            <input
-              type="text"
-              placeholder="Search feed headlines & content..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pl-10 pr-4 py-3 text-sm text-[#EDE9DF] placeholder-[#EDE9DF]/30 focus:outline-none focus:border-[#C5A880]/50 transition-colors"
-            />
-          </div>
-
-          {/* Search results popup/panel */}
-          {searchQuery && newsData && (
-            <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 flex flex-col gap-3 max-h-56 overflow-y-auto no-scrollbar">
-              <span className="text-[10px] font-bold text-[#C5A880] uppercase tracking-wider">Search Matches</span>
-              {newsData.filter(n => n.headline.toLowerCase().includes(searchQuery.toLowerCase())).map((match) => (
-                <a
-                  key={match.id}
-                  href={match.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#EDE9DF]/80 hover:text-[#EDE9DF] border-b border-white/[0.04] pb-2 last:border-0 leading-relaxed"
-                >
-                  <span className="text-[#C5A880] font-bold block text-[10px] uppercase mb-0.5">{match.source}</span>
-                  {match.headline}
-                </a>
-              ))}
-            </div>
+  return (
+    <div className="flex flex-col gap-5">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="font-serif text-[16px] italic text-accent">Headlines</p>
+          <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-fg">News desk</h1>
+        </div>
+        <div className="relative w-full max-w-sm">
+          <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-3" />
+          <input
+            value={query}
+            onChange={(e) => update(e.target.value)}
+            placeholder="Filter by word, model or publisher"
+            aria-label="Filter headlines"
+            className="h-10 w-full rounded-[10px] bg-panel pl-9 pr-9 text-[13.5px] text-fg ring-1 ring-line/[0.08] placeholder:text-fg-3 focus:outline-none focus:ring-accent/50"
+          />
+          {query && (
+            <button onClick={() => update('')} aria-label="Clear filter" className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full text-fg-3 hover:bg-raised hover:text-fg">
+              <X className="h-3.5 w-3.5" weight="bold" />
+            </button>
           )}
-
-          {/* Active Publishing Sources */}
-          <div className="flex flex-col gap-3 flex-1 overflow-hidden">
-            <span className="text-[11px] font-bold text-[#EDE9DF]/40 uppercase tracking-[0.05em] block">Active Publishing Sources</span>
-            <div className="flex flex-col gap-2.5 overflow-y-auto pr-1 no-scrollbar max-h-72">
-              {sortedSources.slice(0, 6).map(([source, count], idx) => (
-                <div key={source} className="flex items-center justify-between text-xs text-[#EDE9DF]/85 bg-white/[0.01] border border-white/[0.04] p-3 rounded-lg hover:bg-white/[0.03] transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-bold text-[#EDE9DF]/45 tabular-nums">0{idx + 1}</span>
-                    <span className="font-semibold">{source}</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-[#C5A880] bg-[#C5A880]/[0.08] px-2 py-0.5 rounded border border-[#C5A880]/20">
-                    {count} stories
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
-
-        {/* Dynamic status footer */}
-        <div className="border-t border-white/[0.07] pt-4 mt-6 flex items-center justify-between text-[11px] text-[#EDE9DF]/40">
-          <span>Confidential Feed Aggregator</span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-500 shadow-[0_0_6px_#22C55E]"></span>
-            Aggregating 29 sources
-          </span>
-        </div>
+      </header>
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <NewsPanel brand={brand} query={query} className="h-[calc(100dvh-260px)] min-h-[520px]" />
+        <SourcesPanel />
       </div>
     </div>
+  )
+}
+
+export default function NewsPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-96" />}>
+      <NewsContent />
+    </Suspense>
   )
 }

@@ -1,106 +1,75 @@
 'use client'
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Settings, Save, ShieldCheck } from 'lucide-react'
+import { Check } from '@phosphor-icons/react'
+import { useAppStore, REFRESH_OPTIONS } from '@/lib/store'
+import { Panel } from '@/components/ui/Panel'
 
 export default function SettingsPage() {
-  const [refreshInterval, setRefreshInterval] = useState('30s')
-  const [cacheTTL, setCacheTTL] = useState('120s')
-  const [customKeywords, setCustomKeywords] = useState('mercedes, bmw, amg, luxury')
-  const [isSaved, setIsSaved] = useState(false)
-
-  const handleSave = () => {
-    setIsSaved(true)
-    setTimeout(() => setIsSaved(false), 2000)
-  }
+  const { refreshMs, setRefreshMs, defaultRegion, setDefaultRegion, watchKeywords, setWatchKeywords } = useAppStore()
+  const [draft, setDraft] = useState(watchKeywords.join(', '))
+  const [saved, setSaved] = useState(false)
+  const parsed = draft.split(',').map((k) => k.trim()).filter(Boolean)
+  const tooMany = parsed.length > 12
 
   return (
-    <div className="flex-grow p-6 flex flex-col gap-6 bg-[#0D0C14] min-h-[800px] overflow-y-auto no-scrollbar select-none justify-between">
-      {/* Title */}
-      <div className="flex flex-col gap-6">
-        <div className="border-b border-white/[0.07] pb-4">
-          <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-[#C5A880]">PREFERENCE SHELL</span>
-          <h1 className="text-2xl font-bold text-[#EDE9DF] mt-1 flex items-center gap-2">
-            <Settings className="h-6 w-6 text-[#C5A880]" />
-            Intelligence Hub Settings
-          </h1>
+    <div className="flex max-w-3xl flex-col gap-5">
+      <header>
+        <p className="font-serif text-[16px] italic text-accent">Settings</p>
+        <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-fg">Your preferences</h1>
+        <p className="mt-1 text-[13px] text-fg-2">Saved in this browser only. Changes apply straight away.</p>
+      </header>
+
+      <Panel title="News refresh" kicker="Timing">
+        <div className="flex flex-wrap gap-1.5">
+          {REFRESH_OPTIONS.map((o) => (
+            <button key={o.ms} aria-pressed={refreshMs === o.ms} onClick={() => setRefreshMs(o.ms)} className="chip-btn">
+              Every {o.label}
+            </button>
+          ))}
         </div>
+        <p className="mt-3 text-[12px] text-fg-3">Publishers update every few minutes at most, so faster than this only repeats the same stories.</p>
+      </Panel>
 
-        {/* Input parameters card */}
-        <div className="bg-white/[0.02] border border-white/[0.08] p-6 rounded-xl flex flex-col gap-6 max-w-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#C5A880]/[0.02] blur-3xl pointer-events-none" />
+      <Panel title="Default region" kicker="Feed">
+        <div className="flex flex-wrap gap-1.5">
+          {(['all', 'india', 'global'] as const).map((r) => (
+            <button key={r} aria-pressed={defaultRegion === r} onClick={() => setDefaultRegion(r)} className="chip-btn capitalize">
+              {r === 'all' ? 'India and global' : r}
+            </button>
+          ))}
+        </div>
+      </Panel>
 
-          {/* Refresh Intervals */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-[#EDE9DF]/65 uppercase tracking-[0.05em]">Telemetry Refresh Rate</label>
-            <div className="flex bg-white/[0.04] p-0.5 rounded border border-white/[0.08] mt-1 max-w-md">
-              {['30s', '60s', '120s'].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setRefreshInterval(t)}
-                  className={`flex-1 text-[11px] font-bold py-2 rounded transition-all capitalize ${
-                    refreshInterval === t ? 'bg-[#C5A880] text-[#0D0C14]' : 'text-[#EDE9DF]/50 hover:text-[#EDE9DF]'
-                  }`}
-                >
-                  {t} Polls
-                </button>
-              ))}
-            </div>
-            <span className="text-[10px] text-[#EDE9DF]/40 mt-1">Configures background API querying frequency for live market indices</span>
-          </div>
-
-          {/* Cache TTLs */}
-          <div className="flex flex-col gap-2 mt-2">
-            <label className="text-xs font-bold text-[#EDE9DF]/65 uppercase tracking-[0.05em]">Aggregator Cache Lifetime</label>
-            <div className="flex bg-white/[0.04] p-0.5 rounded border border-white/[0.08] mt-1 max-w-md">
-              {['60s', '120s', '300s'].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setCacheTTL(t)}
-                  className={`flex-1 text-[11px] font-bold py-2 rounded transition-all capitalize ${
-                    cacheTTL === t ? 'bg-[#C5A880] text-[#0D0C14]' : 'text-[#EDE9DF]/50 hover:text-[#EDE9DF]'
-                  }`}
-                >
-                  {t} Cache
-                </button>
-              ))}
-            </div>
-            <span className="text-[10px] text-[#EDE9DF]/40 mt-1">Controls server-side RSS feeds payload persistence parameters</span>
-          </div>
-
-          {/* Keywords search */}
-          <div className="flex flex-col gap-2.5 mt-2">
-            <label className="text-xs font-bold text-[#EDE9DF]/65 uppercase tracking-[0.05em]">Custom Search Index Tags</label>
-            <input
-              type="text"
-              value={customKeywords}
-              onChange={(e) => setCustomKeywords(e.target.value)}
-              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-[#EDE9DF] placeholder-[#EDE9DF]/30 focus:outline-none focus:border-[#C5A880]/50 transition-colors mt-1"
-            />
-            <span className="text-[10px] text-[#EDE9DF]/40">Comma-separated tags for filtering live intelligence news stream</span>
-          </div>
-
-          {/* Action button */}
-          <div className="mt-4 border-t border-white/[0.06] pt-5 flex items-center justify-between">
-            <span className="text-[10px] text-[#EDE9DF]/45 uppercase flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-[#3DB87A]" />
-              Secure Enterprise Mode Active
-            </span>
-            <button
-              onClick={handleSave}
-              className="flex items-center gap-2 text-xs font-bold tracking-[0.05em] uppercase text-[#0D0C14] bg-[#C5A880] hover:bg-[#C5A880]/90 px-5 py-2.5 rounded-xl transition-all shadow-lg active:scale-95"
-            >
-              <Save className="h-4 w-4" />
-              {isSaved ? 'Preferences Saved!' : 'Save System Settings'}
+      <Panel title="Watch words" kicker="Highlight">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (tooMany) return
+            setWatchKeywords(parsed)
+            setSaved(true)
+            setTimeout(() => setSaved(false), 1800)
+          }}
+          className="flex flex-col gap-2"
+        >
+          <label htmlFor="kw" className="text-[13px] text-fg-2">Words to highlight in headlines, separated by commas</label>
+          <input
+            id="kw"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            aria-invalid={tooMany}
+            aria-describedby="kw-help"
+            className="h-10 rounded-[10px] bg-ink px-3 text-[13.5px] text-fg ring-1 ring-line/10 focus:outline-none focus:ring-accent/50 aria-[invalid=true]:ring-neg/60"
+          />
+          <p id="kw-help" className={tooMany ? 'text-[12px] text-neg' : 'text-[12px] text-fg-3'}>
+            {tooMany ? 'Keep it to 12 words or fewer.' : `${parsed.length} word${parsed.length === 1 ? '' : 's'}`}
+          </p>
+          <div>
+            <button type="submit" disabled={tooMany} className="mt-1 inline-flex items-center gap-2 rounded-[10px] bg-fg px-4 py-2 text-[13px] font-medium text-ink transition-[transform,opacity] hover:opacity-90 active:scale-[0.98] disabled:opacity-40">
+              {saved ? <><Check className="h-4 w-4" weight="bold" /> Saved</> : 'Save watch words'}
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="border-t border-white/[0.07] pt-4 mt-12 text-[11px] text-[#EDE9DF]/40 text-center">
-        <span>Confidential Dashboard Settings Scoped to MSXI</span>
-      </div>
+        </form>
+      </Panel>
     </div>
   )
 }

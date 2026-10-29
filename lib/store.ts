@@ -1,17 +1,35 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { BrandId } from '@/types'
+import type { RegionFilter } from '@/config/feeds.config'
+
+export const REFRESH_OPTIONS = [
+  { ms: 60_000, label: '1 min' },
+  { ms: 120_000, label: '2 min' },
+  { ms: 300_000, label: '5 min' },
+] as const
 
 interface AppState {
   activeBrand: BrandId
   setActiveBrand: (brand: BrandId) => void
-  
+
   sidebarOpen: boolean
-  setSidebarOpen: (open: boolean) => void
   toggleSidebar: () => void
-  
-  isDarkTheme: boolean
-  setDarkTheme: (isDark: boolean) => void
+
+  /** How often the news feed re-polls. */
+  refreshMs: number
+  setRefreshMs: (ms: number) => void
+
+  defaultRegion: RegionFilter
+  setDefaultRegion: (r: RegionFilter) => void
+
+  /** Words highlighted in headlines and counted on the dashboard. */
+  watchKeywords: string[]
+  setWatchKeywords: (k: string[]) => void
+
+  /** ISO time the user last opened the alerts tray. */
+  lastSeenNewsAt: string | null
+  markNewsSeen: () => void
 }
 
 export const useAppStore = create<AppState>()(
@@ -19,17 +37,30 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       activeBrand: 'mercedes',
       setActiveBrand: (brand) => set({ activeBrand: brand }),
-      
+
       sidebarOpen: true,
-      setSidebarOpen: (open) => set({ sidebarOpen: open }),
-      toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-      
-      isDarkTheme: false,
-      setDarkTheme: (isDark) => set({ isDarkTheme: isDark }),
+      toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+
+      refreshMs: 120_000,
+      setRefreshMs: (refreshMs) => set({ refreshMs }),
+
+      defaultRegion: 'all',
+      setDefaultRegion: (defaultRegion) => set({ defaultRegion }),
+
+      watchKeywords: ['launch', 'price', 'EV'],
+      setWatchKeywords: (watchKeywords) => set({ watchKeywords }),
+
+      lastSeenNewsAt: null,
+      markNewsSeen: () => set({ lastSeenNewsAt: new Date().toISOString() }),
     }),
     {
       name: 'msxi-app-storage',
-      partialize: (state) => ({ activeBrand: state.activeBrand, isDarkTheme: state.isDarkTheme }),
-    }
-  )
+      version: 2,
+      partialize: ({ activeBrand, sidebarOpen, refreshMs, defaultRegion, watchKeywords, lastSeenNewsAt }) => ({
+        activeBrand, sidebarOpen, refreshMs, defaultRegion, watchKeywords, lastSeenNewsAt,
+      }),
+      // v1 stored isDarkTheme; anything else carries over.
+      migrate: (persisted) => persisted as AppState,
+    },
+  ),
 )

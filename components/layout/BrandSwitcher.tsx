@@ -1,109 +1,76 @@
 'use client'
-
 import * as React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BRAND_CONFIGS, INACTIVE_BRANDS } from '@/config/brands.config'
+import { CaretDown, Check } from '@phosphor-icons/react'
+import { BRAND_CONFIGS, BRAND_IDS, INACTIVE_BRANDS } from '@/config/brands.config'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
-import { ChevronDown, Check } from 'lucide-react'
-import { MercedesStar } from '../ui/MercedesStar'
-import { BmwRoundel } from '../ui/BmwRoundel'
-import { BrandId } from '@/types'
+import { BrandMark } from '@/components/ui/BrandMark'
+import { useDismiss } from '@/hooks/useDismiss'
 
 export function BrandSwitcher() {
   const { activeBrand, setActiveBrand } = useAppStore()
-  const [isOpen, setIsOpen] = React.useState(false)
-  const containerRef = React.useRef<HTMLDivElement>(null)
-
-  React.useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
-  const currentBrandConfig = BRAND_CONFIGS[activeBrand]
+  const [open, setOpen] = React.useState(false)
+  const ref = useDismiss<HTMLDivElement>(open, () => setOpen(false))
+  const current = BRAND_CONFIGS[activeBrand] ?? BRAND_CONFIGS.mercedes
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative" ref={ref}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-white/[0.05]"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex items-center gap-3 rounded-[12px] py-1 pl-1 pr-3 transition-colors duration-200 hover:bg-panel active:scale-[0.99]"
       >
-        <div className="flex h-8 w-8 items-center justify-center rounded bg-white/[0.04] border border-white/[0.08] shadow-sm">
-          {activeBrand === 'mercedes' ? (
-            <img src="/logos/mercedes_benz.png" alt="Mercedes-Benz" className="w-[20px] h-[20px] object-contain" />
-          ) : (
-            <img src="/logos/bmw.png" alt="BMW" className="w-[20px] h-[20px] object-contain" />
-          )}
-        </div>
-        <div className="flex flex-col items-start text-left">
-          <span className="text-xs font-bold text-[#EDE9DF]">{currentBrandConfig.name}</span>
-          <span className="text-[10px] text-[#EDE9DF]/60">{currentBrandConfig.ticker} · {currentBrandConfig.exchange}</span>
-        </div>
-        <ChevronDown className="ml-2 h-4 w-4 text-[#EDE9DF]/60" />
+        <BrandMark brand={current.id} size="sm" />
+        <span className="flex flex-col items-start text-left leading-tight">
+          <span className="text-[13.5px] font-semibold tracking-[-0.01em] text-fg">{current.name}</span>
+          <span className="num text-[11px] text-fg-3">{current.ticker} · {current.exchange}</span>
+        </span>
+        <CaretDown className={cn('ml-1 h-3.5 w-3.5 text-fg-3 transition-transform duration-200', open && 'rotate-180')} weight="bold" />
       </button>
 
       <AnimatePresence>
-        {isOpen && (
+        {open && (
           <motion.div
-            initial={{ opacity: 0, y: -5 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -5 }}
-            transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 z-50 mt-2 w-64 rounded-xl border border-white/[0.08] bg-[#13121E] p-1 shadow-2xl backdrop-blur-md"
+            role="listbox"
+            aria-label="Choose brand"
+            initial={{ opacity: 0, y: -6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+            className="absolute left-0 top-full z-pop mt-2 w-72 origin-top-left rounded-card bg-raised p-1.5 shadow-pop ring-1 ring-line/10"
           >
-            <div className="px-2 py-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#EDE9DF]/40">Active Brands</span>
-            </div>
-            {(Object.keys(BRAND_CONFIGS) as BrandId[]).map((id) => {
-              const config = BRAND_CONFIGS[id]
-              const isActive = activeBrand === id
+            <p className="px-2.5 pb-1 pt-1.5 font-serif text-[14px] italic text-fg-3">Tracking</p>
+            {BRAND_IDS.map((id) => {
+              const b = BRAND_CONFIGS[id]
+              const active = id === activeBrand
               return (
                 <button
                   key={id}
-                  onClick={() => {
-                    setActiveBrand(id)
-                    setIsOpen(false)
-                  }}
-                  className={cn(
-                    'flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/[0.04]',
-                    isActive && 'bg-white/[0.02]'
-                  )}
+                  role="option"
+                  aria-selected={active}
+                  onClick={() => { setActiveBrand(id); setOpen(false) }}
+                  className={cn('flex w-full items-center gap-3 rounded-[10px] px-2 py-2 text-left transition-colors hover:bg-fg/[0.05]', active && 'bg-fg/[0.04]')}
                 >
-                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border border-white/[0.08] bg-white/[0.03]">
-                    {id === 'mercedes' ? <img src="/logos/mercedes_benz.png" alt="Mercedes-Benz" className="w-[18px] h-[18px] object-contain" /> : <img src="/logos/bmw.png" alt="BMW" className="w-[18px] h-[18px] object-contain" />}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className={cn('text-xs font-semibold', isActive ? 'text-[#EDE9DF]' : 'text-[#EDE9DF]/80')}>
-                      {config.name}
-                    </span>
-                    <span className="text-[10px] text-[#EDE9DF]/50">{config.ticker}</span>
-                  </div>
-                  {isActive && <Check className="ml-auto h-4 w-4 text-[#C5A880]" />}
+                  <BrandMark brand={id} size="sm" />
+                  <span className="flex flex-col">
+                    <span className="text-[13px] font-medium text-fg">{b.name}</span>
+                    <span className="num text-[11px] text-fg-3">{b.ticker}</span>
+                  </span>
+                  {active && <Check className="ml-auto h-4 w-4 text-accent" weight="bold" />}
                 </button>
               )
             })}
-
-            <div className="mt-2 border-t border-white/[0.05] pt-1" />
-            <div className="px-2 py-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#EDE9DF]/40">Coming Soon</span>
-            </div>
-            {INACTIVE_BRANDS.map((brand) => (
-              <div
-                key={brand.id}
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 opacity-40 cursor-not-allowed"
-              >
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded border border-white/[0.08] bg-white/[0.01]">
-                  <span className="text-xs font-bold text-[#EDE9DF]/60">{brand.label[0]}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-[#EDE9DF]/70">{brand.label}</span>
-                  <span className="text-[10px] text-[#EDE9DF]/40">Integration pending</span>
-                </div>
+            <div className="my-1.5 border-t border-line/[0.07]" />
+            <p className="px-2.5 pb-1 pt-1 font-serif text-[14px] italic text-fg-3">Next up</p>
+            {INACTIVE_BRANDS.map((b) => (
+              <div key={b.id} className="flex items-center gap-3 rounded-[10px] px-2 py-2 opacity-55" aria-disabled>
+                <span className="grid h-8 w-8 place-items-center rounded-[9px] text-[12px] font-semibold ring-1 ring-line/10" style={{ color: b.color, background: b.bg }}>
+                  {b.label[0]}
+                </span>
+                <span className="text-[13px] text-fg-2">{b.label}</span>
+                <span className="ml-auto text-[11px] text-fg-3">Planned</span>
               </div>
             ))}
           </motion.div>

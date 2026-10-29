@@ -3,42 +3,84 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* One warm neutral family; RGB triplets so Tailwind opacity modifiers work. */
+    --ink: 15 14 12;
+    --panel: 22 21 18;
+    --raised: 30 28 25;
+    --fg: 236 231 220;
+    --fg-2: 168 162 150;
+    --fg-3: 116 111 102;
+    --line: 236 231 220;
+    --pos: 111 174 135;
+    --neg: 208 122 106;
+    --warn: 207 166 90;
+    --msxi: 229 29 75;
+    /* Set per brand by <BrandTheme/>; Mercedes silver-gold by default. */
+    --accent: 197 168 128;
+  }
+
   *, *::before, *::after { box-sizing: border-box; }
   html, body {
     height: 100%;
     overflow: hidden;
-    background: #0D0C14;
-    color: #EDE9DF;
+    background: rgb(var(--ink));
+    color: rgb(var(--fg));
     -webkit-font-smoothing: antialiased;
     font-size: 14px;
-    font-family: var(--font-inter), sans-serif;
+    font-family: var(--font-geist), system-ui, sans-serif;
+    font-feature-settings: 'ss01', 'cv11';
   }
+  h1, h2, h3, p { text-wrap: pretty; }
+  h1, h2 { text-wrap: balance; }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection { background: rgb(var(--accent) / 0.3); }
+}
+
+@layer components {
+  /* Small label: sentence case, medium weight, no shouting caps. */
+  .label { @apply text-[12px] font-medium text-fg-3; }
+  .num { font-family: var(--font-geist-mono), ui-monospace, monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .card { @apply rounded-card bg-panel shadow-card ring-1 ring-line/[0.07]; }
+  .hairline { @apply border-line/[0.07]; }
+  .chip-btn {
+    @apply rounded-tile px-2.5 py-1 text-[12px] font-medium text-fg-2 ring-1 ring-line/10 transition-[background-color,color,transform] duration-200
+           hover:bg-raised hover:text-fg active:scale-[0.97];
+  }
+  .chip-btn[aria-pressed='true'] { @apply bg-fg text-ink ring-fg; }
 }
 
 @layer utilities {
   .tabular { font-variant-numeric: tabular-nums; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  
-  /* Premium Dark Scrollbars */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: rgba(13, 12, 20, 0.5);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(237, 233, 223, 0.12);
-    border-radius: 99px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(237, 233, 223, 0.25);
-  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgb(var(--fg) / 0.1); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--fg) / 0.22); }
 }
 
-@keyframes ripple {
-  0%   { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(3); opacity: 0; }
+/* Film grain over everything; breaks the flat digital look. */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

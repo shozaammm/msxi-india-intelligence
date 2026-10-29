@@ -1,32 +1,33 @@
 import type { BrandConfig, BrandId } from '@/types'
 
+// Single source of truth for brands. To add a brand: add its id to BrandId,
+// add an entry here, a logo in /public/logos and an entry in intel.config.ts.
 export const BRAND_CONFIGS: Record<BrandId, BrandConfig> = {
   mercedes: {
     id: 'mercedes',
     name: 'Mercedes-Benz India',
     fullName: 'Mercedes-Benz Group AG',
     ticker: 'MBG.DE',
+    providerSymbol: { symbol: 'MBG', exchange: 'XETR' },
     exchange: 'XETRA · Frankfurt',
     accentColor: '#C5A880',
+    logo: '/logos/mercedes_benz.png',
+    subLogo: '/logos/amg.png',
     pillTextColor: '#EDE9DF',
     pillBgColor: 'rgba(197,168,128,0.08)',
     pillBorderColor: 'rgba(197,168,128,0.25)',
+    // Brand-identifying terms only. Short codes like 'eq' or 'sl' matched
+    // unrelated stories, and 'daimler'/'dicv' are Daimler Truck, a separate company.
     newsKeywords: [
-      // Brand
-      'mercedes', 'mercedes-benz', 'daimler', 'mbipl',
-      // Sub-brands
-      'amg', 'maybach', 'eqe', 'eqs', 'eq',
-      // Models (India + Global launches)
-      'glc', 'gle', 'gla', 'glb', 'gls', 'g-class', 'g63', 'g-wagen',
-      'e-class', 'c-class', 's-class', 'a-class', 'cla', 'cls',
-      'sl', 'slr', 'sls', 'cle', 'c63', 'e63', 's63', 'gt63', 'gt4',
-      // Specific new models
-      'gt63 4-door', 'amg gt 4-door', 'amg gt4', 's-class 2025', 's-class 2026',
-      'gt 63', 'eqa', 'eqb', 'eqc', 'eqv', 'eqs 450', 'eqs 580',
-      // India-specific
-      'dicv', 'mercedes india', 'star agora', 'mbipl',
-      // Generic luxury
-      'luxury car india', 'luxury sedan india', 'luxury suv india',
+      'mercedes', 'mercedes-benz', 'mercedes-amg', 'mercedes-maybach', 'maybach', 'amg', 'mbipl',
+      'g-class', 'g-wagen', 'g63', 'e-class', 'c-class', 's-class', 'a-class', 'cla', 'cle',
+      'glc', 'gle', 'gls', 'gla', 'glb', 'eqs', 'eqe', 'eqa', 'eqb', 'eqv',
+    ],
+    googleNewsQuery: '"Mercedes-Benz" India',
+    reviewModels: ['E-Class LWB', 'GLC', 'GLE', 'GLS', 'S-Class', 'EQS SUV', 'AMG G63'],
+    officialLinks: [
+      { label: 'Mercedes-Benz India', url: 'https://www.mercedes-benz.co.in/' },
+      { label: 'Group investor relations', url: 'https://group.mercedes-benz.com/investors/' },
     ],
   },
   bmw: {
@@ -34,30 +35,28 @@ export const BRAND_CONFIGS: Record<BrandId, BrandConfig> = {
     name: 'BMW India',
     fullName: 'Bayerische Motoren Werke AG',
     ticker: 'BMW.DE',
+    providerSymbol: { symbol: 'BMW', exchange: 'XETR' },
     exchange: 'XETRA · Frankfurt',
-    accentColor: '#1C69D4',
+    // BMW blue (#1C69D4) toned down so it sits with the warm neutrals.
+    accentColor: '#5B86C9',
+    logo: '/logos/bmw.png',
     pillTextColor: '#EDE9DF',
     pillBgColor: 'rgba(28,105,212,0.12)',
     pillBorderColor: 'rgba(28,105,212,0.35)',
-    newsKeywords: [
-      // Brand
-      'bmw', 'bmw india', 'bmw group', 'bayerische',
-      // Sub-brands
-      'bmw m', 'bmw i', 'mini india', 'rolls-royce', 'rolls royce',
-      // Models
-      'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7', 'xm',
-      'i4', 'i5', 'i7', 'ix', 'ix1', 'ix3', 'ix xdrive',
-      'm2', 'm3', 'm4', 'm5', 'm8', 'm340', 'm340i',
-      '3 series', '5 series', '7 series', '8 series',
-      // Specific launches
-      'bmw m5 2025', 'bmw x5 2025', 'bmw 5 series 2025', 'new bmw',
-      // India-specific
-      'bmw plant chennai', 'bmw financial services india',
-      // Generic
-      'luxury car india', 'luxury sedan india', 'luxury suv india',
+    // 'x1'..'x7', 'i5', 'i7', 'm5' and 'xm' collided with chips, phones and
+    // satellite radio in global feeds; nearly every BMW story names 'BMW' anyway.
+    newsKeywords: ['bmw', 'm340i', 'ix1', 'ix3'],
+    googleNewsQuery: 'BMW India',
+    reviewModels: ['3 Series LWB', '5 Series LWB', 'X1', 'X5', 'X7', 'iX1', 'M340i'],
+    officialLinks: [
+      { label: 'BMW India', url: 'https://www.bmw.in/' },
+      { label: 'BMW Group PressClub India', url: 'https://www.press.bmwgroup.com/india' },
+      { label: 'Group investor relations', url: 'https://www.bmwgroup.com/en/investor-relations.html' },
     ],
   },
 }
+
+export const BRAND_IDS = Object.keys(BRAND_CONFIGS) as BrandId[]
 
 export const INACTIVE_BRANDS = [
   { id: 'stellantis', label: 'Stellantis', color: '#C82327', bg: 'rgba(200,35,39,0.06)', border: 'rgba(200,35,39,0.20)' },

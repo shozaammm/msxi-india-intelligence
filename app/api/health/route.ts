@@ -1,30 +1,25 @@
 import { NextResponse } from 'next/server'
-import { FEEDS } from '@/config/feeds.config'
-import { BRAND_CONFIGS } from '@/config/brands.config'
+import { getFeedHealth } from '@/lib/feedHealth'
+import { getNews } from '@/lib/news'
 
 export async function GET() {
-  // A simple health check to verify we can ping the first RSS feed
-  let rssStatus = 'unknown'
-  let dbStatus = 'ok' // placeholder
-  
-  try {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 3000)
-    const res = await fetch(FEEDS[0].url, { signal: controller.signal })
-    clearTimeout(timeoutId)
-    rssStatus = res.ok ? 'connected' : 'degraded'
-  } catch (e) {
-    rssStatus = 'disconnected'
-  }
+  // Populates feed health if this instance hasn't fetched yet.
+  const news = await getNews('mercedes', 'brand')
+  const feeds = getFeedHealth()
+  const failing = feeds.filter((f) => !f.ok)
+  const status = news.feedsOk === 0 ? 'down' : failing.length / Math.max(1, feeds.length) > 0.3 ? 'degraded' : 'ok'
 
-  return NextResponse.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    services: {
-      feeds: rssStatus,
-      database: dbStatus,
+  return NextResponse.json(
+    {
+      status,
+      timestamp: new Date().toISOString(),
+      services: {
+        feeds: { ok: feeds.length - failing.length, total: feeds.length },
+        marketData: process.env.TWELVE_DATA_API_KEY ? 'configured' : 'not configured',
+        storage: 'none (in-memory cache only)',
+      },
+      feeds,
     },
-    version: '1.0.0',
-    environment: process.env.NODE_ENV
-  }, { headers: { 'Cache-Control': 'no-store' } })
+    { status: status === 'down' ? 503 : 200, headers: { 'Cache-Control': 'no-store' } },
+  )
 }

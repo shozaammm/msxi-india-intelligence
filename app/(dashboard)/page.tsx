@@ -1,24 +1,28 @@
 'use client'
 import { useAppStore } from '@/lib/store'
-import { MarketPanel } from '@/components/market/MarketPanel'
-import { MarketplacePanel } from '@/components/marketplace/MarketplacePanel'
+import { SalesHero } from '@/components/brief/SalesHero'
+import { MonthlyChart } from '@/components/brief/MonthlyChart'
+import { StatesList } from '@/components/brief/StatesList'
+import { MarketStrip } from '@/components/brief/MarketStrip'
 import { NewsPanel } from '@/components/news/NewsPanel'
+import { CoveragePulse } from '@/components/coverage/CoveragePulse'
 
-export default function DashboardOverview() {
-  const activeBrand = useAppStore(state => state.activeBrand)
+export default function TodayPage() {
+  const brand = useAppStore((s) => s.activeBrand)
 
   return (
-    <div className="flex-1 grid overflow-hidden h-full min-h-[800px] gap-6 p-6" style={{ gridTemplateColumns: '55% 45%' }}>
-      <div className="rounded-xl border border-white/[0.08] overflow-hidden bg-[#13121E] shadow-2xl flex flex-col">
-        <MarketPanel brand={activeBrand}/>
+    <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
+      <div className="flex flex-col gap-5 xl:col-span-7">
+        <SalesHero brand={brand} />
+        <MarketStrip brand={brand} />
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <MonthlyChart brand={brand} />
+          <StatesList brand={brand} />
+        </div>
       </div>
-      <div className="grid overflow-hidden h-full gap-6" style={{ gridTemplateRows: '1fr 1fr' }}>
-        <div className="rounded-xl border border-white/[0.08] overflow-hidden bg-[#13121E] shadow-2xl flex flex-col">
-          <MarketplacePanel brand={activeBrand}/>
-        </div>
-        <div className="rounded-xl border border-white/[0.08] overflow-hidden bg-[#13121E] shadow-2xl flex flex-col">
-          <NewsPanel brand={activeBrand}/>
-        </div>
+      <div className="flex flex-col gap-5 xl:col-span-5">
+        <NewsPanel brand={brand} limit={12} className="h-[640px]" />
+        <CoveragePulse brand={brand} />
       </div>
     </div>
   )

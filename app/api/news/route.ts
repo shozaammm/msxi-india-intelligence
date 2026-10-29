@@ -1,73 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { fetchAndParseRSS } from '@/lib/rssParser'
-import { BRAND_CONFIGS } from '@/config/brands.config'
-import { FEEDS } from '@/config/feeds.config'
-import type { BrandId, NewsItem } from '@/types'
+import { getNews, type NewsFilter } from '@/lib/news'
+import { parseBrand, parseEnum, parseIntClamped } from '@/lib/validate'
+import type { NewsResponse } from '@/types'
 
-const CACHE = new Map<string, { items: NewsItem[]; ts: number }>()
-const CACHE_TTL = 60_000
+const FILTERS = ['brand', 'general'] as const
+const REGIONS = ['all', 'india', 'global'] as const
 
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url)
-  const brand = (url.searchParams.get('brand') ?? 'mercedes') as BrandId
-  const filter = url.searchParams.get('filter') ?? 'brand' // 'brand' or 'general'
-  const page = parseInt(url.searchParams.get('page') ?? '1', 10)
-  const limit = parseInt(url.searchParams.get('limit') ?? '20', 10)
-  const sources = url.searchParams.get('sources') // 'india' or 'global' or 'all'
-  
-  const config = BRAND_CONFIGS[brand]
-
-  let items: NewsItem[] = []
-  const cacheKey = `${brand}-${filter}`
-  const cached = CACHE.get(cacheKey)
-  
-  if (cached && Date.now() - cached.ts < CACHE_TTL) {
-    items = cached.items
-  } else {
-    const activeKeywords = filter === 'brand' ? config.newsKeywords : []
-    const results = await Promise.allSettled(
-      FEEDS.map((f) => fetchAndParseRSS(f.url, f.source, f.color, activeKeywords, filter === 'brand' ? 12 : 20))
-    )
-    items = results
-      .flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
-      .sort((a, b) => new Date(b.isoTimestamp).getTime() - new Date(a.isoTimestamp).getTime())
-      .filter((item, idx, arr) => arr.findIndex(i => i.headline.toLowerCase().slice(0, 50) === item.headline.toLowerCase().slice(0, 50)) === idx)
-      .slice(0, 150)
-    
-    if (items.length > 0) {
-      CACHE.set(cacheKey, { items, ts: Date.now() })
-    }
+  const params = req.nextUrl.searchParams
+  const brand = parseBrand(params.get('brand'))
+  const filter = parseEnum<NewsFilter>(params.get('filter'), FILTERS, 'brand')
+  const region = parseEnum(params.get('sources'), REGIONS, 'all')
+  if (!brand || !filter || !region) {
+    return NextResponse.json({ error: 'Invalid brand, filter or sources parameter' }, { status: 400 })
   }
+  const page = parseIntClamped(params.get('page'), 1, 1, 50)
+  const limit = parseIntClamped(params.get('limit'), 150, 1, 150)
 
-  // Apply source filtering
-  if (sources && sources !== 'all') {
-    const regionFeeds = new Set(FEEDS.filter(f => f.region === sources).map(f => f.source))
-    items = items.filter(item => regionFeeds.has(item.source))
+  const result = await getNews(brand, filter)
+  const items = region === 'all' ? result.items : result.items.filter((i) => i.region === region)
+  const start = (page - 1) * limit
+
+  const body: NewsResponse = {
+    data: items.slice(start, start + limit),
+    pagination: { page, limit, total: items.length, totalPages: Math.max(1, Math.ceil(items.length / limit)) },
+    meta: { fetchedAt: result.fetchedAt, stale: result.stale, feedsOk: result.feedsOk, feedsTotal: result.feedsTotal },
   }
-
-  // Apply pagination
-  const startIndex = (page - 1) * limit
-  const paginatedItems = items.slice(startIndex, startIndex + limit)
-
-  if (paginatedItems.length === 0 && page === 1) {
-    return NextResponse.json([{
-      id: 'fb-1',
-      headline: `${config.name} Intelligence — Live feed connecting…`,
-      source: 'MSXI Feed Engine',
-      sourceColor: 'gold',
-      isoTimestamp: new Date().toISOString(),
-      snippet: 'RSS feeds are initialising. Data will appear shortly.',
-      url: '#',
-    }], { headers: { 'Cache-Control': 'no-store' } })
-  }
-
-  return NextResponse.json({
-    data: paginatedItems,
-    pagination: {
-      page,
-      limit,
-      total: items.length,
-      totalPages: Math.ceil(items.length / limit)
-    }
-  }, { headers: { 'Cache-Control': 'no-store' } })
+  // CDN absorbs repeat traffic, so publishers see at most one fetch per feed per few minutes.
+  return NextResponse.json(body, {
+    headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=900' },
+  })
 }

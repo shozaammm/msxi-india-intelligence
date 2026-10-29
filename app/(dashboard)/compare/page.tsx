@@ -1,103 +1,85 @@
 'use client'
-import { BRAND_TELEMETRY } from '@/config/telemetry.config'
-import { motion } from 'framer-motion'
-import { GitCompare, Sparkles } from 'lucide-react'
+import { useNewsData } from '@/hooks/useNewsData'
+import { BRAND_CONFIGS } from '@/config/brands.config'
+import { getBrandIntel } from '@/lib/intel'
+import { BrandMark } from '@/components/ui/BrandMark'
+import { StatusTag } from '@/components/ui/StatusTag'
+import { SourceNote } from '@/components/ui/SourceNote'
+import { cn, formatSignedPct, formatUnits } from '@/lib/utils'
+import type { DataStatus } from '@/types'
+
+const mb = getBrandIntel('mercedes')
+const bmw = getBrandIntel('bmw')
 
 export default function ComparePage() {
-  const mb = BRAND_TELEMETRY.mercedes
-  const bmw = BRAND_TELEMETRY.bmw
+  const mbNews = useNewsData('mercedes')
+  const bmwNews = useNewsData('bmw')
+  const a = mb.annualSales.value
+  const b = bmw.annualSales.value
+  const lead = a.units - b.units
 
-  const comparisonRows = [
+  const rows: { metric: string; mb: string; bmw: string; status: DataStatus; note?: string }[] = [
+    { metric: `Cars sold in India, ${a.year}`, mb: formatUnits(a.units), bmw: formatUnits(b.units), status: 'reported' },
+    { metric: `Change vs ${a.year - 1}`, mb: formatSignedPct(a.yoyPct), bmw: formatSignedPct(b.yoyPct), status: 'reported' },
+    { metric: 'What the figure covers', mb: a.scope, bmw: b.scope, status: 'reported' },
     {
-      metric: 'Outstanding Parent Cap (Shares)',
-      mbVal: '1.07 Billion shares',
-      bmwVal: '601.9 Million shares',
+      metric: 'Brand stories in the feed now',
+      mb: mbNews.data ? String(mbNews.data.data.length) : '…',
+      bmw: bmwNews.data ? String(bmwNews.data.data.length) : '…',
+      status: 'live',
+      note: 'Count of matching headlines across all feeds right now; a measure of attention, not of quality.',
     },
-    {
-      metric: 'Monthly India Sales Volume',
-      mbVal: `${mb.monthlySalesUnits.toLocaleString('en-IN')} units`,
-      bmwVal: `${bmw.monthlySalesUnits.toLocaleString('en-IN')} units`,
-    },
-    {
-      metric: 'YoY Growth Rate (May 2026)',
-      mbVal: `+${mb.yoyGrowthPct}%`,
-      bmwVal: `+${bmw.yoyGrowthPct}%`,
-    },
-    {
-      metric: 'Luxury Segment Share %',
-      mbVal: `${mb.luxurySegmentShare}%`,
-      bmwVal: `${bmw.luxurySegmentShare}%`,
-    },
-    {
-      metric: 'Consensus Owner Rating (Team-BHP)',
-      mbVal: `${mb.userRating} / 5.0`,
-      bmwVal: `${bmw.userRating} / 5.0`,
-    },
-    {
-      metric: 'Enthusiast index ranking',
-      mbVal: `${mb.carCulture.enthusiastIndex} / 10`,
-      bmwVal: `${bmw.carCulture.enthusiastIndex} / 10`,
-    },
+    { metric: 'Luxury segment share', mb: `${mb.segmentShare.value}%`, bmw: `${bmw.segmentShare.value}%`, status: 'sample', note: mb.segmentShare.note },
+    { metric: 'Largest state', mb: mb.topStates.value[0].stateName, bmw: bmw.topStates.value[0].stateName, status: 'sample', note: mb.topStates.note },
   ]
 
   return (
-    <div className="flex-grow p-6 flex flex-col gap-6 bg-[#0D0C14] min-h-[800px] overflow-y-auto no-scrollbar select-none">
-      {/* Header */}
-      <div className="border-b border-white/[0.07] pb-4">
-        <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-[#C5A880]">PORTFOLIO ANALYSIS</span>
-        <h1 className="text-2xl font-bold text-[#EDE9DF] mt-1 flex items-center gap-2">
-          <GitCompare className="h-6 w-6 text-[#C5A880]" />
-          Head-to-Head Brand Comparison
+    <div className="flex flex-col gap-5">
+      <header>
+        <p className="font-serif text-[16px] italic text-accent">Compare</p>
+        <h1 className="max-w-[30ch] text-[28px] font-semibold tracking-[-0.025em] text-fg">
+          Mercedes-Benz sold {formatUnits(Math.abs(lead))} {lead >= 0 ? 'more' : 'fewer'} cars in India than BMW Group in {a.year}
         </h1>
+        <p className="mt-1 max-w-[70ch] text-[13px] leading-relaxed text-fg-2">
+          Mercedes {formatSignedPct(a.yoyPct)} year on year; BMW Group {formatSignedPct(b.yoyPct)}, including MINI. Both are company-reported annual figures.
+        </p>
+      </header>
+
+      <div className="card overflow-x-auto">
+        <table className="w-full min-w-[640px] border-collapse text-left">
+          <thead>
+            <tr className="border-b border-line/[0.07]">
+              <th scope="col" className="w-[34%] px-5 py-4 align-bottom text-[12px] font-medium text-fg-3">Measure</th>
+              {(['mercedes', 'bmw'] as const).map((id) => (
+                <th key={id} scope="col" className="px-5 py-4">
+                  <span className="flex items-center gap-3">
+                    <BrandMark brand={id} size="sm" />
+                    <span className="text-[14px] font-semibold text-fg">{BRAND_CONFIGS[id].name}</span>
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.metric} className="border-b border-line/[0.05] transition-colors last:border-0 hover:bg-fg/[0.02]">
+                <th scope="row" className="px-5 py-3.5 align-top text-[13px] font-normal text-fg-2">
+                  <span className="flex flex-wrap items-center gap-2">
+                    {r.metric}
+                    <StatusTag status={r.status} note={r.note} />
+                  </span>
+                </th>
+                {[r.mb, r.bmw].map((v, i) => (
+                  <td key={i} className={cn('px-5 py-3.5 align-top text-fg', /^[\d+−,.%…]+$/.test(v) ? 'num text-[16px]' : 'text-[13px] text-fg-2')}>{v}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-
-      <div className="grid grid-cols-2 gap-6 mt-2">
-        {/* Mercedes Overview */}
-        <div className="bg-white/[0.02] border border-white/[0.08] p-5 rounded-xl flex items-center gap-4 relative overflow-hidden">
-          <img src="/logos/mercedes_benz.png" alt="Mercedes-Benz" className="w-12 h-12 object-contain" />
-          <div>
-            <h2 className="text-base font-bold text-[#EDE9DF]">Mercedes-Benz India</h2>
-            <p className="text-xs text-[#EDE9DF]/50 mt-0.5">Mercedes-Benz Group AG · India Operations</p>
-          </div>
-        </div>
-
-        {/* BMW Overview */}
-        <div className="bg-white/[0.02] border border-white/[0.08] p-5 rounded-xl flex items-center gap-4 relative overflow-hidden">
-          <img src="/logos/bmw.png" alt="BMW" className="w-12 h-12 object-contain" />
-          <div>
-            <h2 className="text-base font-bold text-[#EDE9DF]">BMW India</h2>
-            <p className="text-xs text-[#EDE9DF]/50 mt-0.5">Bayerische Motoren Werke AG · India Operations</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Comparison Grid Table */}
-      <div className="bg-white/[0.02] border border-white/[0.08] rounded-xl overflow-hidden mt-4">
-        <div className="grid grid-cols-12 bg-white/[0.04] p-4 text-xs font-bold text-[#EDE9DF] border-b border-white/[0.08] uppercase tracking-wider">
-          <div className="col-span-4">Metric / Parameter</div>
-          <div className="col-span-4 text-left text-[#C5A880]">Mercedes-Benz India</div>
-          <div className="col-span-4 text-left text-[#1C69D4]">BMW India</div>
-        </div>
-        <div className="flex flex-col">
-          {comparisonRows.map((row) => (
-            <div key={row.metric} className="grid grid-cols-12 p-4 text-xs border-b border-white/[0.04] last:border-0 hover:bg-white/[0.01] transition-colors leading-relaxed">
-              <div className="col-span-4 font-semibold text-[#EDE9DF]/50">{row.metric}</div>
-              <div className="col-span-4 text-[#EDE9DF] font-medium">{row.mbVal}</div>
-              <div className="col-span-4 text-[#EDE9DF] font-medium">{row.bmwVal}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Consensus Insight block */}
-      <div className="bg-white/[0.01] border border-white/[0.06] p-5 rounded-xl flex items-start gap-4 mt-4">
-        <Sparkles className="h-6 w-6 text-[#C5A880] flex-shrink-0 mt-0.5" />
-        <div>
-          <h3 className="text-xs font-bold text-[#EDE9DF] uppercase tracking-wider">MSXI Consultant Consensus Verdict</h3>
-          <p className="text-xs text-[#EDE9DF]/65 leading-relaxed mt-1.5">
-            Mercedes-Benz India holds an advantage in rear-seat chauffeur comfort and volumetric luxury segment market share dominance (48.5%). BMW India maintains a clear lead in enthusiast driving dynamics, sport engine mapping (M Division cult), and high-performance user satisfaction ratings (4.8/5.0).
-          </p>
-        </div>
+      <div className="flex flex-col gap-1">
+        <SourceNote p={mb.annualSales} prefix="Mercedes-Benz" />
+        <SourceNote p={bmw.annualSales} prefix="BMW Group" />
       </div>
     </div>
   )
