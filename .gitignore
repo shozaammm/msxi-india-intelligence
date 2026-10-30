@@ -37,3 +37,6 @@ next-env.d.ts
 
 # Local tooling
 .claude/settings.local.json
+
+# Design scratch
+.brainstorm

@@ -23,13 +23,13 @@ export default function BrandHubPage() {
         <div className="relative flex flex-wrap items-center gap-7">
           <BrandMark brand={brand} size="xl" />
           <div className="min-w-0">
-            <p className="font-serif text-[17px] italic text-accent">Brand hub</p>
-            <h1 className="text-[34px] font-semibold leading-tight tracking-[-0.03em] text-fg">{cfg.name}</h1>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-fg-3">Brand hub</p>
+            <h1 className="display text-[clamp(36px,4vw,56px)] text-fg">{cfg.name}</h1>
             <p className="text-[13px] text-fg-3">{cfg.fullName} · <span className="num">{cfg.ticker}</span></p>
           </div>
           {cfg.subLogo && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={cfg.subLogo} alt="Mercedes-AMG" className="ml-auto hidden h-5 w-auto opacity-45 brightness-0 invert md:block" />
+            <img src={cfg.subLogo} alt="Mercedes-AMG" className="ml-auto hidden h-5 w-auto opacity-60 brightness-0 md:block [[data-theme=dark]_&]:invert" />
           )}
         </div>
       </section>

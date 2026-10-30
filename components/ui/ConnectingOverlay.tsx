@@ -31,7 +31,7 @@ export function ConnectingOverlay() {
           <div className="h-px w-40 overflow-hidden rounded-full bg-fg/10">
             <motion.div className="h-full origin-left bg-msxi" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 1.1, ease: [0.4, 0, 0.2, 1] }} />
           </div>
-          <p className="font-serif text-[17px] italic text-fg-2">India intelligence</p>
+          <p className="text-[15px] text-fg-2">India intelligence</p>
         </motion.div>
       )}
     </AnimatePresence>

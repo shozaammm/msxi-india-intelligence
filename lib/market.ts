@@ -80,7 +80,7 @@ export async function getMarketSnapshot(brand: BrandId): Promise<MarketSnapshot>
     exchange: config.exchange,
     fx,
     quote,
-    marketCapEUR: quote && quote.currency === 'EUR' ? quote.price * shares.value : null,
+    marketCapEUR: quote && quote.currency === 'EUR' && shares.value > 0 ? quote.price * shares.value : null,
     sharesOutstanding: shares,
     providerConfigured: Boolean(process.env.TWELVE_DATA_API_KEY),
     fetchedAt: new Date().toISOString(),

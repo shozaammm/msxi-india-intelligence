@@ -62,8 +62,8 @@ function NewsContent() {
     <div className="flex flex-col gap-5">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-serif text-[16px] italic text-accent">Headlines</p>
-          <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-fg">News desk</h1>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-fg-3">Headlines</p>
+          <h1 className="display text-[clamp(36px,4vw,56px)] text-fg">News desk</h1>
         </div>
         <div className="relative w-full max-w-sm">
           <MagnifyingGlass className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-3" />

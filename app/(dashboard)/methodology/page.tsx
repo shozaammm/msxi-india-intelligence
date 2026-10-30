@@ -23,7 +23,7 @@ const SOURCES = [
 ]
 
 function H2({ id, children }: { id?: string; children: React.ReactNode }) {
-  return <h2 id={id} className="scroll-mt-6 text-[19px] font-semibold tracking-[-0.015em] text-fg">{children}</h2>
+  return <h2 id={id} className="display scroll-mt-6 text-[28px] text-fg">{children}</h2>
 }
 
 export default function MethodologyPage() {
@@ -31,8 +31,8 @@ export default function MethodologyPage() {
   return (
     <article className="flex max-w-[760px] flex-col gap-9 pb-6">
       <header>
-        <p className="font-serif text-[16px] italic text-accent">Methodology</p>
-        <h1 className="text-[32px] font-semibold leading-tight tracking-[-0.03em] text-fg">Where every number comes from</h1>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-fg-3">Methodology</p>
+        <h1 className="display text-[clamp(36px,4vw,56px)] text-fg">Where every number comes from</h1>
         <p className="mt-3 text-[14px] leading-relaxed text-fg-2">
           Every figure in this app carries a status, a source and a date. If a number has no source, we don&apos;t show it. Registrations (VAHAN, FADA) are not the same as manufacturer wholesale figures, and some states report late.
         </p>

@@ -1,4 +1,4 @@
-export type BrandId = 'mercedes' | 'bmw'
+export type BrandId = 'mercedes' | 'bmw' | 'audi' | 'volvo' | 'porsche' | 'landrover' | 'lexus'
 
 export interface BrandLink {
   label: string
@@ -14,7 +14,14 @@ export interface BrandConfig {
   providerSymbol: { symbol: string; exchange: string }
   exchange: string
   accentColor: string
-  logo: string
+  /** Default surface when the user hasn't picked one. */
+  theme: 'light' | 'dark'
+  /** Short label for the brand switcher pill. */
+  switchLabel: string
+  /** Optional: brands without a licensed mark fall back to a monogram. */
+  logo?: string
+  /** Single-colour (black) mark: inverted wherever it sits on a dark surface. */
+  logoMono?: boolean
   /** Optional secondary mark shown next to the wordmark (e.g. AMG). */
   subLogo?: string
   pillTextColor: string

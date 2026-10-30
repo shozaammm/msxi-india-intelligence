@@ -36,8 +36,8 @@ export default function ComparePage() {
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <p className="font-serif text-[16px] italic text-accent">Compare</p>
-        <h1 className="max-w-[30ch] text-[28px] font-semibold tracking-[-0.025em] text-fg">
+        <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-fg-3">Compare</p>
+        <h1 className="max-w-[30ch] display text-[clamp(36px,4vw,56px)] text-fg">
           Mercedes-Benz sold {formatUnits(Math.abs(lead))} {lead >= 0 ? 'more' : 'fewer'} cars in India than BMW Group in {a.year}
         </h1>
         <p className="mt-1 max-w-[70ch] text-[13px] leading-relaxed text-fg-2">

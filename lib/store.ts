@@ -9,12 +9,15 @@ export const REFRESH_OPTIONS = [
   { ms: 300_000, label: '5 min' },
 ] as const
 
+export type ThemePref = 'auto' | 'light' | 'dark' | 'stone'
+
 interface AppState {
   activeBrand: BrandId
   setActiveBrand: (brand: BrandId) => void
 
-  sidebarOpen: boolean
-  toggleSidebar: () => void
+  /** 'auto' follows the brand: Mercedes white, BMW black. */
+  theme: ThemePref
+  setTheme: (t: ThemePref) => void
 
   /** How often the news feed re-polls. */
   refreshMs: number
@@ -38,8 +41,8 @@ export const useAppStore = create<AppState>()(
       activeBrand: 'mercedes',
       setActiveBrand: (brand) => set({ activeBrand: brand }),
 
-      sidebarOpen: true,
-      toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+      theme: 'auto',
+      setTheme: (theme) => set({ theme }),
 
       refreshMs: 120_000,
       setRefreshMs: (refreshMs) => set({ refreshMs }),
@@ -55,9 +58,9 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'msxi-app-storage',
-      version: 2,
-      partialize: ({ activeBrand, sidebarOpen, refreshMs, defaultRegion, watchKeywords, lastSeenNewsAt }) => ({
-        activeBrand, sidebarOpen, refreshMs, defaultRegion, watchKeywords, lastSeenNewsAt,
+      version: 3,
+      partialize: ({ activeBrand, theme, refreshMs, defaultRegion, watchKeywords, lastSeenNewsAt }) => ({
+        activeBrand, theme, refreshMs, defaultRegion, watchKeywords, lastSeenNewsAt,
       }),
       // v1 stored isDarkTheme; anything else carries over.
       migrate: (persisted) => persisted as AppState,

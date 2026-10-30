@@ -10,6 +10,11 @@ import type { BrandId, BrandIntel } from '@/types'
 
 const SAMPLE_NOTE = 'Illustrative placeholder until the FADA / VAHAN pipeline is connected. Not real data.'
 
+const NO_MONTHLY: BrandIntel['monthlyTrend'] = { value: [], status: 'unavailable', source: 'No brand-wise monthly figures loaded yet', asOf: '2026-10-30', note: 'FADA publishes brand-wise retail each month. Add it here when available.' }
+const NO_STATES: BrandIntel['topStates'] = { value: [], status: 'unavailable', source: 'Needs the VAHAN pipeline', asOf: '2026-10-30', note: 'No state-wise data is loaded for this brand.' }
+const NO_SEGMENT: BrandIntel['segmentShare'] = { value: 0, status: 'unavailable', source: 'Not loaded', asOf: '2026-10-30' }
+const NO_SHARES: BrandIntel['sharesOutstanding'] = { value: 0, status: 'unavailable', source: 'Not loaded; verify against the parent company annual report', asOf: '2026-10-30' }
+
 export const BRAND_INTEL: Record<BrandId, BrandIntel> = {
   mercedes: {
     brand: 'mercedes',
@@ -102,5 +107,80 @@ export const BRAND_INTEL: Record<BrandId, BrandIntel> = {
       asOf: '2026-05-25',
       note: 'Includes ordinary and preferred shares only if the report says so. Market cap is approximate until it is verified.',
     },
+  },
+  audi: {
+    brand: 'audi',
+    annualSales: {
+      value: { year: 2025, units: 4_510, yoyPct: -22, scope: 'Audi India retail sales (customer deliveries)' },
+      status: 'reported',
+      source: 'Audi India press release, via Rushlane',
+      sourceUrl: 'https://www.rushlane.com/audi-india-2025-sales-decline-12537555.html',
+      asOf: '2025-12-31',
+      note: '2024 was 5,816 units, so the fall is about 22.5%.',
+    },
+    monthlyTrend: NO_MONTHLY,
+    segmentShare: NO_SEGMENT,
+    topStates: NO_STATES,
+    sharesOutstanding: NO_SHARES,
+  },
+  volvo: {
+    brand: 'volvo',
+    annualSales: {
+      value: { year: 2023, units: 2_423, yoyPct: 31, scope: 'Volvo Car India, calendar 2023' },
+      status: 'reported',
+      source: 'Business Standard, citing Volvo Car India',
+      sourceUrl: 'https://www.business-standard.com/topic/volvo-cars',
+      asOf: '2023-12-31',
+      note: 'Latest India full-year figure we could find. Volvo has not been matched to a 2024 or 2025 release; replace this when you find one.',
+    },
+    monthlyTrend: NO_MONTHLY,
+    segmentShare: NO_SEGMENT,
+    topStates: NO_STATES,
+    sharesOutstanding: NO_SHARES,
+  },
+  porsche: {
+    brand: 'porsche',
+    annualSales: {
+      value: { year: 2024, units: 1_006, yoyPct: 10, scope: 'Porsche India deliveries, calendar 2024' },
+      status: 'reported',
+      source: 'Porsche Newsroom',
+      sourceUrl: 'https://newsroom.porsche.com/en_PME/2025/company/porsche-india-achieves-new-sales-milestone.html',
+      asOf: '2024-12-31',
+      note: 'Latest India full-year figure we could find. A calendar 2025 India number was not located; replace this when it is published.',
+    },
+    monthlyTrend: NO_MONTHLY,
+    segmentShare: NO_SEGMENT,
+    topStates: NO_STATES,
+    sharesOutstanding: NO_SHARES,
+  },
+  landrover: {
+    brand: 'landrover',
+    annualSales: {
+      value: { year: 2025, units: 6_183, yoyPct: 40, scope: 'JLR India retail (Jaguar and Land Rover together)', period: 'FY2024-25 (Apr to Mar)', vsLabel: 'FY2023-24' },
+      status: 'reported',
+      source: 'Autocar Pro, citing JLR India',
+      sourceUrl: 'https://autocarpro.in/news/jlr-india-records-highest-annual-sales-with-growth-of-40-in-fy25-125828',
+      asOf: '2025-03-31',
+      note: 'JLR reports on a fiscal year and does not split Land Rover from Jaguar in India. A calendar 2025 figure was not located.',
+    },
+    monthlyTrend: NO_MONTHLY,
+    segmentShare: NO_SEGMENT,
+    topStates: NO_STATES,
+    sharesOutstanding: NO_SHARES,
+  },
+  lexus: {
+    brand: 'lexus',
+    annualSales: {
+      value: { year: 2025, units: 0, yoyPct: 0, scope: 'Lexus India has not published unit totals' },
+      status: 'unavailable',
+      source: 'AutoGuide India, citing Lexus India',
+      sourceUrl: 'https://www.autoguideindia.com/statistics/lexus-india-cy2025-ultra-luxury-sales-growth/',
+      asOf: '2025-12-31',
+      note: 'Lexus India reported growth rates and model mix for 2025 (LM and LX about +50%, roughly 19% of sales), not unit totals. We show nothing rather than an estimate.',
+    },
+    monthlyTrend: NO_MONTHLY,
+    segmentShare: NO_SEGMENT,
+    topStates: NO_STATES,
+    sharesOutstanding: NO_SHARES,
   },
 }

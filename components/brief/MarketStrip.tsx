@@ -6,6 +6,8 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { cn, formatEUR, formatSignedPct, mktCapINR } from '@/lib/utils'
 import type { BrandId } from '@/types'
 
+const CURRENCY_SYMBOL: Record<string, string> = { EUR: '€', INR: '₹', JPY: '¥', USD: '$' }
+
 /** Compact parent-group market context. Shows nothing it can't source. */
 export function MarketStrip({ brand }: { brand: BrandId }) {
   const { data, isLoading, isError } = useMarketData(brand)
@@ -13,7 +15,7 @@ export function MarketStrip({ brand }: { brand: BrandId }) {
   const cells = [
     {
       label: 'Share price',
-      value: data?.quote ? `€${data.quote.price.toFixed(2)}` : '—',
+      value: data?.quote ? `${CURRENCY_SYMBOL[data.quote.currency] ?? `${data.quote.currency} `}${data.quote.price.toFixed(2)}` : '—',
       sub: data?.quote?.changePct != null ? formatSignedPct(data.quote.changePct, 2) : data?.providerConfigured ? 'No quote' : 'Feed not set up',
       subTone: data?.quote?.changePct != null ? (data.quote.changePct >= 0 ? 'text-pos' : 'text-neg') : 'text-fg-3',
       status: data?.quote?.status ?? 'unavailable',

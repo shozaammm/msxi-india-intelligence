@@ -5,7 +5,7 @@ import { useAppStore, REFRESH_OPTIONS } from '@/lib/store'
 import { Panel } from '@/components/ui/Panel'
 
 export default function SettingsPage() {
-  const { refreshMs, setRefreshMs, defaultRegion, setDefaultRegion, watchKeywords, setWatchKeywords } = useAppStore()
+  const { theme, setTheme, refreshMs, setRefreshMs, defaultRegion, setDefaultRegion, watchKeywords, setWatchKeywords } = useAppStore()
   const [draft, setDraft] = useState(watchKeywords.join(', '))
   const [saved, setSaved] = useState(false)
   const parsed = draft.split(',').map((k) => k.trim()).filter(Boolean)
@@ -14,10 +14,19 @@ export default function SettingsPage() {
   return (
     <div className="flex max-w-3xl flex-col gap-5">
       <header>
-        <p className="font-serif text-[16px] italic text-accent">Settings</p>
-        <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-fg">Your preferences</h1>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-fg-3">Settings</p>
+        <h1 className="display text-[clamp(36px,4vw,56px)] text-fg">Your preferences</h1>
         <p className="mt-1 text-[13px] text-fg-2">Saved in this browser only. Changes apply straight away.</p>
       </header>
+
+      <Panel title="Surface" kicker="Appearance">
+        <div className="flex flex-wrap gap-1.5">
+          {([['auto', 'Follow the brand'], ['light', 'White'], ['dark', 'Black'], ['stone', 'Stone']] as const).map(([t, label]) => (
+            <button key={t} aria-pressed={theme === t} onClick={() => setTheme(t)} className="chip-btn">{label}</button>
+          ))}
+        </div>
+        <p className="mt-3 text-[13px] text-fg-3">Each brand has a default surface (Mercedes-Benz, Volvo and Lexus white; the rest black). Stone is the warm grey used for Maybach.</p>
+      </Panel>
 
       <Panel title="News refresh" kicker="Timing">
         <div className="flex flex-wrap gap-1.5">

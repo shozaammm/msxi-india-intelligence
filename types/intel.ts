@@ -39,6 +39,10 @@ export interface AnnualSales {
   units: number
   yoyPct: number
   scope: string
+  /** Label when the period isn't a calendar year, e.g. 'FY2024-25 (Apr–Mar)'. */
+  period?: string
+  /** Comparison label for yoyPct when not `year - 1`, e.g. 'FY2023-24'. */
+  vsLabel?: string
 }
 
 export interface BrandIntel {

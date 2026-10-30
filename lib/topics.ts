@@ -21,3 +21,13 @@ export function classifyTopics(text: string): TopicId[] {
 export function topicLabel(id: string): string {
   return TOPICS.find((t) => t.id === id)?.label ?? id
 }
+
+// Stories that name a car brand but are not automotive news (court cases, crime, HR/finance gossip).
+const OFF_TOPIC = /\b(judge|court|high court|arrest(ed)?|bail|police|murder|accused|hit[- ]and[- ]run|lawsuit|sues?|buyouts?|layoffs?|celebrity|wedding|actor|actress|cricketer)\b/i
+
+/** Keep only car sales, launches, pricing, features, tech, reviews, recalls and industry news. */
+export function isAutoRelevant(headline: string, snippet = ''): boolean {
+  if (OFF_TOPIC.test(`${headline} ${snippet}`)) return false
+  // The headline itself must carry an automotive signal; a snippet alone is too loose.
+  return classifyTopics(headline).length > 0
+}

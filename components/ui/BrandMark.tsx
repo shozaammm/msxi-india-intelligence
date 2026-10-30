@@ -14,12 +14,16 @@ export function BrandMark({ brand, size = 'md', className }: { brand: BrandId; s
     <span
       className={cn('relative grid shrink-0 place-items-center overflow-hidden', SIZES[size], className)}
       style={{
-        background: `radial-gradient(120% 120% at 25% 15%, rgb(255 250 240 / 0.14), rgb(255 250 240 / 0.02) 55%), ${b.accentColor}14`,
-        boxShadow: `inset 0 0 0 1px ${b.accentColor}40, inset 0 1px 0 rgb(255 255 255 / 0.08), 0 8px 20px -10px ${b.accentColor}66`,
+        background: `radial-gradient(120% 120% at 25% 15%, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.55) 60%), ${b.accentColor}22`,
+        boxShadow: `inset 0 0 0 1px ${b.accentColor}40, 0 8px 20px -10px ${b.accentColor}66`,
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={b.logo} alt={`${b.name} logo`} className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgb(0_0_0/0.45)]" />
+      {b.logo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={b.logo} alt={`${b.name} logo`} className="h-full w-full object-contain drop-shadow-[0_2px_3px_rgb(0_0_0/0.25)]" />
+      ) : (
+        <span aria-label={`${b.name} (no logo on file)`} className="display text-[1.6em] leading-none text-black/80">{b.switchLabel[0]}</span>
+      )}
     </span>
   )
 }

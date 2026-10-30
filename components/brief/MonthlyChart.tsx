@@ -12,7 +12,7 @@ export function MonthlyChart({ brand, className }: { brand: BrandId; className?:
   const { monthlyTrend } = getBrandIntel(brand)
   const series = monthlyTrend.value
   const isSample = monthlyTrend.status === 'sample'
-  const max = Math.max(...series.map((m) => m.units))
+  const max = Math.max(1, ...series.map((m) => m.units))
   const [hover, setHover] = useState<number | null>(null)
   const shown = hover ?? series.length - 1
 
@@ -22,8 +22,11 @@ export function MonthlyChart({ brand, className }: { brand: BrandId; className?:
       kicker="Trend"
       className={className}
       action={<StatusTag status={monthlyTrend.status} note={monthlyTrend.note} />}
-      footer={<p className="text-[11.5px] text-fg-3">{isSample ? 'Replace with FADA OEM-wise retail figures each month. See Methodology.' : monthlyTrend.source}</p>}
+      footer={<p className="text-[11.5px] text-fg-3">{series.length === 0 ? monthlyTrend.source : isSample ? 'Replace with FADA OEM-wise retail figures each month. See Methodology.' : monthlyTrend.source}</p>}
     >
+      {series.length === 0 ? (
+        <p className="py-8 text-[14px] leading-relaxed text-fg-3">No monthly series yet. FADA publishes brand-wise retail each month; add it to config/intel.config.ts.</p>
+      ) : (<>
       <div className="flex items-baseline justify-between">
         <p className="num text-[28px] font-medium tracking-[-0.03em] text-fg">{formatUnits(series[shown].units)}</p>
         <p className="text-[12px] text-fg-3">{series[shown].month}</p>
@@ -55,6 +58,7 @@ export function MonthlyChart({ brand, className }: { brand: BrandId; className?:
           </span>
         ))}
       </div>
+      </>)}
     </Panel>
   )
 }

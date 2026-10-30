@@ -19,8 +19,9 @@ export function StatesList({
       kicker="Where"
       className={className}
       action={<StatusTag status={topStates.status} note={topStates.note} />}
-      footer={<p className="text-[11.5px] text-fg-3">Share of the brand&apos;s India registrations. {topStates.status === 'sample' ? 'Sample until the VAHAN pipeline is approved and connected.' : topStates.source}</p>}
+      footer={<p className="text-[11.5px] text-fg-3">Share of the brand&apos;s India registrations. {topStates.status === 'sample' ? 'Sample until the VAHAN pipeline is approved and connected.' : topStates.status === 'unavailable' ? 'Unavailable.' : topStates.source}</p>}
     >
+      {rows.length === 0 && <p className="py-8 text-[14px] leading-relaxed text-fg-3">State-wise registrations aren&apos;t available for this brand yet. They need the VAHAN pipeline.</p>}
       <ol className="flex flex-col">
         {rows.map((s, i) => (
           <li key={s.stateName}>

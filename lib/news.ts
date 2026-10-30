@@ -1,6 +1,7 @@
 import { fetchAndParseRSS } from '@/lib/rssParser'
 import { BRAND_CONFIGS } from '@/config/brands.config'
 import { FEEDS, googleNewsFeed } from '@/config/feeds.config'
+import { isAutoRelevant } from '@/lib/topics'
 import type { BrandId, NewsItem } from '@/types'
 
 export type NewsFilter = 'brand' | 'general'
@@ -40,6 +41,7 @@ export async function getNews(brand: BrandId, filter: NewsFilter): Promise<Aggre
   const seenHeadlines = new Set<string>()
   const items = results
     .flatMap((r) => r.items)
+    .filter((item) => isAutoRelevant(item.headline, item.snippet))
     .sort((a, b) => b.isoTimestamp.localeCompare(a.isoTimestamp))
     .filter((item) => {
       // Same story syndicated across outlets: keep the newest copy.

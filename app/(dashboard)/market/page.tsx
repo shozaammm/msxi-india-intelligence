@@ -38,8 +38,8 @@ export default function MarketPage() {
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <p className="font-serif text-[16px] italic text-accent">Market</p>
-        <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-fg">{cfg.fullName}</h1>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-fg-3">Market</p>
+        <h1 className="display text-[clamp(36px,4vw,56px)] text-fg">{cfg.fullName}</h1>
         <p className="num mt-1 text-[12.5px] text-fg-3">{cfg.ticker} · {cfg.exchange}</p>
       </header>
 

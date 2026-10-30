@@ -23,7 +23,7 @@ export function ErrorCard({ source, message, onRetry }: { source: string; messag
 export function EmptyState({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
     <div className="flex flex-col items-start gap-1.5 py-8">
-      <p className="font-serif text-[20px] italic text-fg-2">{title}</p>
+      <p className="display text-[24px] text-fg">{title}</p>
       {children && <div className="max-w-prose text-[12.5px] leading-relaxed text-fg-3">{children}</div>}
     </div>
   )

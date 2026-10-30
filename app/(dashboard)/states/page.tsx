@@ -19,8 +19,8 @@ export default function StatesPage() {
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <p className="font-serif text-[16px] italic text-accent">States</p>
-        <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-fg">Where {BRAND_CONFIGS[brand].name.split(' ')[0]} registers cars</h1>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-fg-3">States</p>
+        <h1 className="display text-[clamp(36px,4vw,56px)] text-fg">Where {BRAND_CONFIGS[brand].name.split(' ')[0]} registers cars</h1>
       </header>
 
       {topStates.status === 'sample' && (

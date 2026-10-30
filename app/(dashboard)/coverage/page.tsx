@@ -24,8 +24,8 @@ export default function CoveragePage() {
   return (
     <div className="flex flex-col gap-5">
       <header>
-        <p className="font-serif text-[16px] italic text-accent">Coverage</p>
-        <h1 className="text-[28px] font-semibold tracking-[-0.025em] text-fg">What people are writing about {cfg.name.split(' ')[0]}</h1>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-fg-3">Coverage</p>
+        <h1 className="display text-[clamp(36px,4vw,56px)] text-fg">What people are writing about {cfg.name.split(' ')[0]}</h1>
         <p className="mt-1 max-w-[68ch] text-[13px] leading-relaxed text-fg-2">
           Counted from live headlines. We don&apos;t score sentiment or quote reviewers: a few dozen articles can&apos;t support a score, and quotes belong to the people who said them. Follow the links to read and watch the originals.
         </p>

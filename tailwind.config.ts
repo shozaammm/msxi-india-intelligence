@@ -10,8 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-geist)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         serif: ['var(--font-serif)', 'Georgia', 'serif'],
       },
       colors: {
@@ -30,12 +29,11 @@ const config: Config = {
       },
       borderRadius: {
         tile: '6px',
-        card: '14px',
+        card: '16px',
       },
       boxShadow: {
-        // Shadows tinted with the warm ground instead of pure black.
-        card: '0 1px 0 0 rgb(255 248 235 / 0.04) inset, 0 12px 32px -16px rgb(8 6 3 / 0.7)',
-        pop: '0 1px 0 0 rgb(255 248 235 / 0.06) inset, 0 24px 48px -12px rgb(8 6 3 / 0.8)',
+        card: 'var(--card-shadow)',
+        pop: 'var(--pop-shadow)',
       },
       zIndex: {
         nav: '30',

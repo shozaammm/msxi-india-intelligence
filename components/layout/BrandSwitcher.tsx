@@ -1,81 +1,65 @@
 'use client'
-import * as React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { CaretDown, Check } from '@phosphor-icons/react'
-import { BRAND_CONFIGS, BRAND_IDS, INACTIVE_BRANDS } from '@/config/brands.config'
+import { motion } from 'framer-motion'
+import { BRAND_CONFIGS, BRAND_IDS } from '@/config/brands.config'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
-import { BrandMark } from '@/components/ui/BrandMark'
-import { useDismiss } from '@/hooks/useDismiss'
 
-export function BrandSwitcher() {
+/** Pill segmented control, as on the Mercedes-Benz home page. */
+export function BrandSwitcher({ className }: { className?: string }) {
   const { activeBrand, setActiveBrand } = useAppStore()
-  const [open, setOpen] = React.useState(false)
-  const ref = useDismiss<HTMLDivElement>(open, () => setOpen(false))
-  const current = BRAND_CONFIGS[activeBrand] ?? BRAND_CONFIGS.mercedes
-
   return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        className="flex items-center gap-3 rounded-[12px] py-1 pl-1 pr-3 transition-colors duration-200 hover:bg-panel active:scale-[0.99]"
-      >
-        <BrandMark brand={current.id} size="sm" />
-        <span className="flex flex-col items-start text-left leading-tight">
-          <span className="text-[13.5px] font-semibold tracking-[-0.01em] text-fg">{current.name}</span>
-          <span className="num text-[11px] text-fg-3">{current.ticker} · {current.exchange}</span>
-        </span>
-        <CaretDown className={cn('ml-1 h-3.5 w-3.5 text-fg-3 transition-transform duration-200', open && 'rotate-180')} weight="bold" />
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            role="listbox"
-            aria-label="Choose brand"
-            initial={{ opacity: 0, y: -6, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className="absolute left-0 top-full z-pop mt-2 w-72 origin-top-left rounded-card bg-raised p-1.5 shadow-pop ring-1 ring-line/10"
+    <div
+      role="tablist"
+      aria-label="Choose brand"
+      className={cn('no-scrollbar pointer-events-auto inline-flex max-w-[94vw] overflow-x-auto rounded-full bg-ink p-1 ring-1 ring-fg/70 shadow-pop', className)}
+    >
+      {BRAND_IDS.map((id) => {
+        const active = id === activeBrand
+        const b = BRAND_CONFIGS[id]
+        return (
+          <button
+            key={id}
+            role="tab"
+            aria-selected={active}
+            onClick={() => setActiveBrand(id)}
+            className={cn(
+              // One typeface for every brand so the pill reads as a single control.
+              'relative shrink-0 whitespace-nowrap rounded-full px-4 py-2.5 text-[13px] font-semibold uppercase tracking-[0.12em] transition-colors duration-200 sm:px-5',
+              active ? 'text-ink' : 'text-fg hover:text-fg-2',
+            )}
           >
-            <p className="px-2.5 pb-1 pt-1.5 font-serif text-[14px] italic text-fg-3">Tracking</p>
-            {BRAND_IDS.map((id) => {
-              const b = BRAND_CONFIGS[id]
-              const active = id === activeBrand
-              return (
-                <button
-                  key={id}
-                  role="option"
-                  aria-selected={active}
-                  onClick={() => { setActiveBrand(id); setOpen(false) }}
-                  className={cn('flex w-full items-center gap-3 rounded-[10px] px-2 py-2 text-left transition-colors hover:bg-fg/[0.05]', active && 'bg-fg/[0.04]')}
-                >
-                  <BrandMark brand={id} size="sm" />
-                  <span className="flex flex-col">
-                    <span className="text-[13px] font-medium text-fg">{b.name}</span>
-                    <span className="num text-[11px] text-fg-3">{b.ticker}</span>
-                  </span>
-                  {active && <Check className="ml-auto h-4 w-4 text-accent" weight="bold" />}
-                </button>
-              )
-            })}
-            <div className="my-1.5 border-t border-line/[0.07]" />
-            <p className="px-2.5 pb-1 pt-1 font-serif text-[14px] italic text-fg-3">Next up</p>
-            {INACTIVE_BRANDS.map((b) => (
-              <div key={b.id} className="flex items-center gap-3 rounded-[10px] px-2 py-2 opacity-55" aria-disabled>
-                <span className="grid h-8 w-8 place-items-center rounded-[9px] text-[12px] font-semibold ring-1 ring-line/10" style={{ color: b.color, background: b.bg }}>
-                  {b.label[0]}
-                </span>
-                <span className="text-[13px] text-fg-2">{b.label}</span>
-                <span className="ml-auto text-[11px] text-fg-3">Planned</span>
-              </div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {active && <motion.span layoutId="brand-pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} className="absolute inset-0 rounded-full bg-fg" />}
+            <span className="relative flex items-center gap-2.5">
+              {b.logo && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={b.logo}
+                  alt=""
+                  aria-hidden
+                  className={cn(
+                    'h-5 w-5 object-contain',
+                    b.id === 'lexus' && 'w-9',
+                    b.logoMono && (active ? 'invert [[data-theme=dark]_&]:invert-0' : '[[data-theme=dark]_&]:invert'),
+                  )}
+                />
+              )}
+              {b.switchLabel}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/**
+ * Zero-height sticky slot: sits where it is placed in the flow (hero bottom on Today,
+ * top of the page elsewhere), then pins under the nav while scrolling.
+ */
+export function BrandPill({ className }: { className?: string }) {
+  return (
+    <div className={cn('pointer-events-none sticky top-[100px] z-nav flex h-0 items-start justify-center overflow-visible', className)}>
+      <BrandSwitcher className="-translate-y-1/2" />
     </div>
   )
 }
